@@ -68,6 +68,16 @@ _LEADING_MARKUP = re.compile(rf"^{_EDGE_MARKUP}+")
 # 정상 12개 교과 진술문 2470건의 최단 길이(별책17 9한02-03 "글을 바르게 풀이한다." 12자).
 # 이보다 짧은 조각은 진술문이 될 수 없으므로 빈 줄을 건너 이어붙이지 않는다.
 _MIN_BRIDGE = 12
+# 진술문의 시작일 수 없는 두 가지.
+# (1) 마커 잔해 문자. 실측상 진술문 2915건은 한글로, 15건은 숫자로, 18건은 라틴 문자로
+#     시작하고, 나머지 정상 사례는 부처가 쓴 수학 기호·인용부호뿐이다(□가 사용된 덧셈식…,
+#     ‘(자연수)÷(자연수)’…, ∑의 뜻과 성질…). 아래 문자로 시작한 것은 전부 잔해였다.
+#     한글 타이포그래피의 가운뎃점(⋅ · ㆍ)은 넣지 않는다 — 준언어⋅비언어적, 8⋅15 광복처럼
+#     부처 원문에 정상적으로 쓰인다.
+# (2) 홀로 선 조사. 한국어 문장은 조사로 시작하지 않는다. 코드 마커가 문장 한가운데
+#     박힌 고려 사항 상용구가 이렇게 잡힌다 — 별책16:36275 "(하) [12심아05-04]을 제외한
+#     성취기준은 학습자의 수준을 고려하여…"에서 마커 뒤를 그대로 취하면 "을 제외한…"이 된다.
+_NOT_STATEMENT_START = re.compile(r"[\[\]/#|<>\\]|[을를은는의에와과도만로가]\s")
 
 
 def _statement_in_window(window: str):
@@ -79,8 +89,18 @@ def _statement_in_window(window: str):
     (별책16:3682 "[9생중02-03] 간단한" + 빈 줄 + 3684행은 9생중02-02의 문장).
     그래서 모아 둔 조각이 진술문이라 할 만한 길이가 됐을 때만 건넌다.
     """
-    buf, stripped = "", False
-    for para in re.split(r"\n[ \t]*\n", _LEAD_JUNK.sub("", window)):
+    trimmed = _LEAD_JUNK.sub("", window)
+    if _NOT_STATEMENT_START.match(trimmed):
+        # 진술문이 시작될 수 없는 자리 = 접합면이다. 별책16:26010 "[12일어05-01/02/03/04]
+        # 이 성취기준에 나오는 …"처럼 코드 여러 개를 묶은 해설 머리글에서 첫 코드만
+        # 인식되면 남은 "/02/03/04]"가 앞에 남고, 해설임을 알리는 "이 성취기준은"은
+        # 그 뒤로 밀려 _COMMENTARY_PREFIX가 놓친다.
+        return None, False, False
+    # _LEAD_JUNK가 숫자를 떼어냈다면 본문 글자를 고친 것이므로 아래 마크업 제거와 똑같이
+    # 표시해야 한다(닫는 괄호·공백만 뗀 경우는 마커의 일부일 뿐이라 표시하지 않는다).
+    buf = ""
+    stripped = any(c.isdigit() for c in window[:len(window) - len(trimmed)])
+    for para in re.split(r"\n[ \t]*\n", trimmed):
         piece = re.sub(r"\s+", " ", para).strip()
         if not buf and not piece:
             break  # 아직 시작도 못했는데 문단 경계 — 구조적 중단

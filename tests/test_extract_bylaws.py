@@ -402,7 +402,8 @@ def test_short_fragment_does_not_bridge_blank_line():
     assert r["needs_review"] is True
     assert all("질문하거나 대답한다" not in (x["statement"] or "") for x in recs)
 
-# 별책18 716~718행, 원문 100% 그대로 — 쪽 경계에서 변환기가 "⋅"와 "-"를 끼워 넣었다.
+# 별책18 717행과 719행, 원문 100% 그대로(718행은 빈 줄 구분자) — 쪽 경계에서 변환기가
+# "⋅"와 "-"를 끼워 넣었다.
 # 조각이 50자라 이어붙이는 것 자체는 옳고, 끼어든 마크업만 떼어야 한다.
 PAGE_BREAK_MARKUP_SAMPLE = """- [9보03-04] 성폭력⋅성매개감염병 등 성 건강 위험요소를 미디어 문해력 및 성문화와 관련지어 탐색하고 ⋅
 
@@ -415,6 +416,36 @@ def test_page_break_markup_stripped_and_flagged():
         "성폭력⋅성매개감염병 등 성 건강 위험요소를 미디어 문해력 및 성문화와 관련지어 탐색하고 건강하게 관리 옹호한다."
     )  # 낱말 사이 "성폭력⋅성매개감염병"의 구분자는 그대로 남는다
     assert r["needs_review"] is True   # 조립 중 마크업을 뗐다 = 조립 자체가 의심스럽다
+
+# 별책16 26000~26010행, 원문 그대로를 소스에서 그대로 떠 왔다(손으로 옮겨 적지 않았다).
+# 별책16 일어 절의 해설 항목에는 불릿이 없어서 "0열이면 본문" 예외가 오작동한다. 게다가
+# 26010행은 코드 네 개를 한 마커에 묶은 해설 머리글이라, 첫 코드만 인식되고 남은
+# "/02/03/04]"가 앞에 남는 바람에 "이 성취기준은" 신호마저 뒤로 밀린다.
+NON_BULLETED_COMMENTARY_SAMPLE = """[12일어05-01] 일본 문화 내용을     we CRE
+
+[12일어05-02] 일본 문화 USS 조사"정리하여 다양한 콘텐츠를 제작한다.
+
+[12일어05-03] 일본 문화 Weg 상호문화적 관점에서 온오프라인으로 의견을 공유한다.
+[12일어05-04] 언어문화*비언어 문화를 포함한 일본 문화 내용을 의사소통 상황에 활용한다.
+[12일어05-05] 일본 문화에 대해 호기심을 가지고 수업이나 기제 활     농에 적극적으로 참여한다.
+
+(가) 성취기준 해설
+
+[12일어05-01/02/03/04] 이 성취기준에 나오는 '일본 문화 내용'은 '가. 내용 체계'에서
+"""
+
+def test_non_bulleted_commentary_at_column_zero_is_not_promoted():
+    """0열 예외가 본문임을 확인해 주지 못하는 자리에서는 진술문을 만들지 않는다."""
+    recs = extract_from_text(NON_BULLETED_COMMENTARY_SAMPLE, subject="제2외국어",
+                             source_label="[별책16]")
+    by_code = {r["code"]: r for r in recs}
+    r = by_code["12일어05-01"]
+    assert r["statement"] is None          # 26000행 본문은 OCR로 뭉개졌고 해설은 출처가 못 된다
+    assert r["needs_review"] is True
+    assert all("이 성취기준에 나오는" not in (x["statement"] or "") for x in recs)
+    # 같은 절의 멀쩡한 이웃들은 정상 추출된다 — 예외를 통째로 끈 게 아니다
+    assert by_code["12일어05-04"]["statement"].startswith("언어문화")
+
 
 # ---------------------------------------------------------------------------
 # 전 코퍼스 게이트. 위 fixture 테스트들이 규칙 하나하나를 지키는 반면, 아래 둘은
