@@ -74,8 +74,8 @@ def test_broken_table_does_not_misattach_statement_to_wrong_code():
     assert all(r["statement"] is None for r in by_code.values())
     assert all(r["needs_review"] for r in by_code.values())
 
-# 별책16 10284~10293행, 원문 100% 그대로(오탈자·OCR 잡음 전부 보존: "we", "환용한다",
-# "Hood", "ARS HAO", "비만적으로", "OPN", "SERS" 등 전부 원문 표기 그대로).
+# 별책16 10285~10294행, 원문 100% 그대로(오탈자·OCR 잡음 전부 보존: "we", "환용한다",
+# "Hood", "ARS HAO", "비만적으로", "OPN", "SERS", "문회와" 등 전부 원문 표기 그대로).
 # 12독문01-03/04는 이 구간에 코드 마커 자체가 없다(OCR로 소실 — 별도 fixture에서 04는 해설에서만
 # 등장하는 경우를 다룬다). 01-02는 종결 마침표 없이 '&'로 시작하는 OCR 잡음 줄을 거쳐 이어지고,
 # 01-05는 괄호가 "(...|"로 손상돼 있다.
@@ -88,7 +88,7 @@ ORPHAN_CODE_SAMPLE = """나. 성취기준
 
 (12독문01-05| 독일어권 Hood 대한 ARS HAO 비만적으로 해석하여 다양한 OPN Ho
 공유한다
-[12독문01-06]독일어권 문화와 우리 문화의 차이점과 SERS 비교한다.
+[12독문01-06]독일어권 문회와 우리 문화의 차이점과 SERS 비교한다.
 """
 
 def test_orphan_code_not_misattached_to_neighbors():
@@ -100,7 +100,7 @@ def test_orphan_code_not_misattached_to_neighbors():
     assert "환용한다" in by_code["12독문01-02"]["statement"]  # 있는 그대로(오타까지) 회수
     assert by_code["12독문01-05"]["needs_review"] is True
     # 이웃(01-06)이 자기 것 아닌 문장을 흡수하지 않았는지: 원문 그대로의 자기 문장만 갖는다
-    assert by_code["12독문01-06"]["statement"] == "독일어권 문화와 우리 문화의 차이점과 SERS 비교한다."
+    assert by_code["12독문01-06"]["statement"] == "독일어권 문회와 우리 문화의 차이점과 SERS 비교한다."
 
 # 별책16 10284~10286, 10297, 10305~10307행, 원문 100% 그대로. 10287~10296행(01-02, 01-05~07 본문)과
 # 10298~10304행(01-01, 01-02 해설)은 이 테스트와 무관해 생략 — 포함한 줄은 그대로.
@@ -224,11 +224,16 @@ def test_missing_trailing_period_recovered_but_flagged():
     assert r["statement"] == "날말이나 간난한 구, WHS 듣고 의미를 이해한다"  # 있는 그대로, 마침표 발명 안 함
     assert r["needs_review"] is True  # 명시적 종결자를 못 찾았다는 사실은 계속 표시
 
-# 별책8(수학) 807행, 원문 100% 그대로 — 단위 표기가 숫자/조사에 공백 없이 바로 붙는 정상 사례.
-UNIT_TOKEN_SAMPLE = "[4수03-15] 길이 단위 1mm와 1km를 알고, 이를 이용하여 길이를 측정하고 어림하며 수학의 유용성을 인식할 수 있다."
-# 별책8 811행, 원문 100% 그대로 — 단위가 인용부호와 공백 사이에 홀로 서고("‘몇 cm 몇 mm’") 뒤에
-# 조사가 붙지 않는 정상 사례. "라틴 런 뒤에 조사가 없으면 잡음"이라는 규칙은 여기서 오탐을 냈다.
-UNIT_QUOTED_SAMPLE = "[4수03-16] 1cm와 1mm, 1km와 1m의 관계를 이해하고, 길이를 ‘몇 cm 몇 mm’와 ‘몇 mm’, ‘몇 km 몇 m’와 ‘몇 m’로 다양하게 표현할 수 있다."
+# 별책8(수학) 808~809행, 원문 100% 그대로(줄바꿈 위치까지) — 단위 표기가 숫자에 공백 없이
+# 바로 붙는 정상 사례.
+UNIT_TOKEN_SAMPLE = """[4수03-15] 길이 단위 1mm와 1km를 알고, 이를 이용하여 길이를 측정하고 어림하며 수학의
+유용성을 인식할 수 있다.
+"""
+# 별책8 810~811행, 원문 100% 그대로 — 단위가 인용부호와 공백 사이에 홀로 서고("‘몇 cm 몇 mm’")
+# 뒤에 조사가 붙지 않는 정상 사례. "라틴 런 뒤에 조사가 없으면 잡음"이라는 규칙은 여기서 오탐을 냈다.
+UNIT_QUOTED_SAMPLE = """[4수03-16] 1cm와 1mm, 1km와 1m의 관계를 이해하고, 길이를 ‘몇 cm 몇 mm’와 ‘몇 mm’,
+‘몇 km 몇 m’와 ‘몇 m’로 다양하게 표현할 수 있다.
+"""
 # 별책16 원문 100% 그대로 — 한국어 낱말 자리를 라틴 잡음이 차지한 실제 사례("USS"←"자료를" 등).
 REAL_GIBBERISH_SAMPLE = "[9생아05-01] 간략한 아랍 문화 USS 이해한다."
 
@@ -247,7 +252,7 @@ BODY_RESUMES_WITHOUT_KEYWORD_SAMPLE = """- [6도01-03] 자기가 하고 싶은 �
 
 ## (가) 성취기준 해설
 
-- [6도01-02] 이 성취기준의 취지는 자신의 행동에 대한 문제점을 확인하고 재정립하도록 하여 반성하는 태도를 기르기 위한 것이다.
+- [6도01-02] 이 성취기준의 취지는 자신의 행동에 대한 문제점을 확인하고 재정립하도록 하여 반성하는 태도를 기르기 위한 것이다. 학생이 스스로 자기 행동의 문제를 인식하고 개선하려 노력함으로써 바른 도덕 생활의 토대를 마련하도록 한다.
 
 ## (나) 성취기준 적용 시 고려 사항
 
@@ -373,6 +378,44 @@ def test_code_namespace_collision_is_not_a_cross_reference():
     assert cross == []
     assert ("제2외국어", "12심독02-02") in [(r["subject"], r["code"]) for r in kept]
 
+# 별책16 3680~3688행, 원문 100% 그대로(오탈자 "날말"/"간난하고", 표 파편 "ㅣ"/"적" 전부 보존).
+# PDF 표가 세로로 조각나 9생중02-03의 본문 줄이 "간단한"에서 끊기고, 빈 줄 너머 3684행은
+# 9생중02-02의 문장이다(성취수준 문서가 그렇게 귀속시킨다). 이어붙이면 부처가 그 코드로
+# 발표한 적 없는 문장이 만들어진다.
+SHREDDED_COLUMN_SAMPLE = """초적인
+[9생중02-03] 간단한
+
+날말이나 구, 간난하고 쉬운 문장을 활용하여 질문하거나 대답한다.
+ㅣ
+
+적
+한 의사소통 표현을 상황에 맞게 자신감을 가지고 적극적으로 말한다.
+"""
+
+def test_short_fragment_does_not_bridge_blank_line():
+    """F4 재현: 빈 줄 건너뛰기가 헤더 스플라이스와 다른 경로로 같은 날조를 만들었다.
+    '간단한'(3자)은 진술문이 될 수 없는 조각이므로 건너뛰지 않는다. 인접 검사로는
+    잡을 수 없다 — 접합된 문자열이 원문에 그대로 존재하기 때문이다."""
+    recs = extract_from_text(SHREDDED_COLUMN_SAMPLE, subject="제2외국어", source_label="[별책16]")
+    r = {x["code"]: x for x in recs}["9생중02-03"]
+    assert r["statement"] is None       # 02-02의 문장을 가져오지 않는다
+    assert r["needs_review"] is True
+    assert all("질문하거나 대답한다" not in (x["statement"] or "") for x in recs)
+
+# 별책18 716~718행, 원문 100% 그대로 — 쪽 경계에서 변환기가 "⋅"와 "-"를 끼워 넣었다.
+# 조각이 50자라 이어붙이는 것 자체는 옳고, 끼어든 마크업만 떼어야 한다.
+PAGE_BREAK_MARKUP_SAMPLE = """- [9보03-04] 성폭력⋅성매개감염병 등 성 건강 위험요소를 미디어 문해력 및 성문화와 관련지어 탐색하고 ⋅
+
+- 건강하게 관리 옹호한다.
+"""
+
+def test_page_break_markup_stripped_and_flagged():
+    r = extract_from_text(PAGE_BREAK_MARKUP_SAMPLE, subject="중학교 선택", source_label="[별책18]")[0]
+    assert r["statement"] == (
+        "성폭력⋅성매개감염병 등 성 건강 위험요소를 미디어 문해력 및 성문화와 관련지어 탐색하고 건강하게 관리 옹호한다."
+    )  # 낱말 사이 "성폭력⋅성매개감염병"의 구분자는 그대로 남는다
+    assert r["needs_review"] is True   # 조립 중 마크업을 뗐다 = 조립 자체가 의심스럽다
+
 # ---------------------------------------------------------------------------
 # 전 코퍼스 게이트. 위 fixture 테스트들이 규칙 하나하나를 지키는 반면, 아래 둘은
 # 14개 별책 전체를 실제로 돌려 "지어내지 않는다"와 "빠뜨리지 않는다"를 동시에 건다.
@@ -382,24 +425,57 @@ import re
 from pipeline.clean import load_text
 from pipeline.codes import find_codes
 
+# 변환기가 쪽 경계에 끼워 넣은 홀로 선 불릿만 무시한다. 낱말 사이 구분자(성폭력⋅성매개감염병)는
+# 앞뒤가 공백이 아니므로 그대로 남는다 — 즉 이 정규화는 마크업만 지우지 본문은 건드리지 않는다.
+_MARKUP_TOKEN = re.compile(r"(?<=\s)[⋅•·∙\-–—*©§]+(?=\s)")
+
+def _norm(text):
+    return re.sub(r"\s+", " ", _MARKUP_TOKEN.sub(" ", text))
+
 def _shipped():
     """main()이 실제로 써 내는 것과 같은 레코드 목록 + 과목별 정규화 원문."""
     recs, src = [], {}
     for e in BYLAWS:
         text = load_text(e["path"])
         recs += extract_from_text(text, e["subject"], e["source_label"])
-        src[e["subject"]] = re.sub(r"\s+", " ", text)
+        src[e["subject"]] = _norm(text)
     kept, cross = drop_cross_references(recs)
     return kept, cross, src
 
 def test_every_statement_appears_verbatim_in_its_source():
-    """공백 정규화 외에는 원문 그대로여야 한다. 섹션 헤더를 건너뛰어 이어붙이거나 쪽 머리말을
-    삼키거나 다른 코드의 문장을 접합하면 정규화된 원문에서 그 문자열을 찾을 수 없다 —
-    즉 이 한 줄이 '접합·지어냄 없음'을 코퍼스 전체에 대해 증명한다."""
+    """공백·불릿 마크업 정규화 외에는 원문 그대로여야 한다. 섹션 헤더를 건너뛰어 이어붙이거나
+    쪽 머리말을 삼키거나 다른 코드의 문장을 접합하면 정규화된 원문에서 그 문자열을 찾을 수
+    없다 — 즉 이 한 줄이 '접합·지어냄 없음'을 코퍼스 전체에 대해 증명한다."""
     kept, _, src = _shipped()
     offenders = [(r["subject"], r["code"], r["statement"])
-                 for r in kept if r["statement"] and r["statement"] not in src[r["subject"]]]
+                 for r in kept if r["statement"] and _norm(r["statement"]) not in src[r["subject"]]]
     assert offenders == [], offenders[:5]
+
+def test_fixtures_are_verbatim_from_the_corpus():
+    """위 fixture들이 '원문 100% 그대로'라는 주장을 기계로 검증한다. 사람이 옮겨 적는 과정에서
+    원문을 조용히 고치는 일이 두 번 있었다("간난한"→"간단한", "문회와"→"문화와") — 둘 다
+    verbatim이 상품인 프로젝트에서 리뷰가 잡아냈다. 이제는 테스트가 잡는다."""
+    import sys
+    src = {l.strip() for e in BYLAWS for l in load_text(e["path"]).split("\n")}
+    mod = sys.modules[__name__]
+    drift = []
+    for name in dir(mod):
+        # BYLAW_SAMPLE은 브리프가 제시한 합성 예시라 원문 대조 대상이 아니다.
+        if not name.endswith("_SAMPLE") or name == "BYLAW_SAMPLE":
+            continue
+        for line in getattr(mod, name).split("\n"):
+            if line.strip() and line.strip() not in src:
+                drift.append((name, line.strip()))
+    assert drift == [], drift
+
+def test_no_structural_markup_survives_in_any_statement():
+    """불릿 글리프나 마커에서 떨어져 나온 선두 숫자는 부처 원문에 없다."""
+    bullet = re.compile(r"(?:^|\s)[⋅•·∙©§*](?:\s|$)|(?:^|\s)-(?:\s|$)")
+    lead_digit = re.compile(r"^\d(?:\s|$)")
+    kept, _, _ = _shipped()
+    bad = [(r["subject"], r["code"], r["statement"]) for r in kept if r["statement"]
+           and (bullet.search(r["statement"]) or lead_digit.search(r["statement"]))]
+    assert bad == [], bad[:5]
 
 # 이 12개 교과는 원문이 온전해 진술문을 하나도 놓칠 이유가 없다. 제2외국어·도덕은 원문 자체가
 # OCR로 뭉개진 구간이 있어 제외하되, 전체 null 비율에는 포함해 함께 건다.

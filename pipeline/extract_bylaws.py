@@ -54,37 +54,57 @@ def _header_kind(line: str):
 _COMMENTARY_PREFIX = re.compile(r"^이\s*성취기준")
 _TERMINATOR = re.compile(r"(다\.)(?=\s|$|[\[〔【［)\]〕】］\"'”’」』])")
 # 코드 마커의 닫는 괄호가 span 밖에 남는 경우(3단 코드는 괄호를 span에 포함하지 않음).
+# OCR이 닫는 괄호를 숫자로 잘못 읽은 경우도 뗀다 — 별책16:16620 "[12스어04-048 간단한 …"의
+# "8"이 그것. 숫자 뒤에 공백이 올 때만 떼므로 "1cm와 1mm…"(4수03-16)는 손대지 않는다.
 # 줄바꿈은 절대 지우지 않는다 — 빈 줄은 구조적 중단 신호라서 지우면 표가 깨진 구간에서
 # 뒤쪽 문장 블록을 앞쪽 코드에 잘못 붙인다(별책16 "(5) 문화" 4코드 3문장 사례).
-_LEAD_JUNK = re.compile(rf"^[ \t{_CLOSE_LIKE[1:-1]}]+")
+_LEAD_JUNK = re.compile(rf"^(?:[ \t{_CLOSE_LIKE[1:-1]}]+|\d(?=\s))+")
+
+
+# 불릿 글리프. 낱말 사이 구분자로도 쓰이므로(성폭력⋅성매개감염병) 조각의 양 끝에서만 뗀다.
+_EDGE_MARKUP = r"[\s⋅•·∙\-–—*©§]"
+_TRAILING_MARKUP = re.compile(rf"{_EDGE_MARKUP}+$")
+_LEADING_MARKUP = re.compile(rf"^{_EDGE_MARKUP}+")
+# 정상 12개 교과 진술문 2470건의 최단 길이(별책17 9한02-03 "글을 바르게 풀이한다." 12자).
+# 이보다 짧은 조각은 진술문이 될 수 없으므로 빈 줄을 건너 이어붙이지 않는다.
+_MIN_BRIDGE = 12
 
 
 def _statement_in_window(window: str):
-    """구간 안에서 '다.' 종결까지 문단을 이어붙인다. 반환: (진술문, 명시적 종결자 여부).
-    문단(빈 줄) 경계는 아직 아무 내용도 못 모았을 때만 하드 스톱 — 이미 시작된 진술문은
-    빈 줄을 건너뛰어 잇는다(원문에서 진술문이 줄바꿈으로 끊기는 경우가 흔하다)."""
-    buf = ""
+    """구간 안에서 '다.' 종결까지 문단을 이어붙인다.
+    반환: (진술문, 명시적 종결자 여부, 조립 중 마크업을 떼어냈는지).
+
+    빈 줄을 건너뛰어 잇는 것은 원문이 쪽·단 경계에서 진술문을 끊어 놓기 때문인데,
+    별책16처럼 표가 세로로 조각난 문서에서는 빈 줄 너머가 *다른 코드*의 문장이다
+    (별책16:3682 "[9생중02-03] 간단한" + 빈 줄 + 3684행은 9생중02-02의 문장).
+    그래서 모아 둔 조각이 진술문이라 할 만한 길이가 됐을 때만 건넌다.
+    """
+    buf, stripped = "", False
     for para in re.split(r"\n[ \t]*\n", _LEAD_JUNK.sub("", window)):
         piece = re.sub(r"\s+", " ", para).strip()
         if not buf and not piece:
             break  # 아직 시작도 못했는데 문단 경계 — 구조적 중단
         if not piece:
             continue
-        if buf and not re.search(r"[가-힣]", piece):
-            # 다음 항목의 불릿·쪽번호 등 내용 없는 조각 = 구조적 중단. 건너뛰고 그
-            # 다음 문단을 이어붙이면 원문에 없던 접합이 생기므로 여기서 끊는다.
-            # (별책6:242 [6도03-03]은 마침표가 없는데 뒤 불릿 "-"가 붙는 바람에
-            # '…다' 종결 회수마저 막혔다.)
-            break
+        if buf:
+            if not re.search(r"[가-힣]", piece) or len(buf) < _MIN_BRIDGE:
+                # 내용 없는 조각이거나, 진술문이라기엔 너무 짧은 조각에서 건너뛰는 경우.
+                # 이어붙이면 원문에 없던 문장이 만들어지므로 여기서 끊는다.
+                break
+            # 쪽 경계에 변환기가 끼워 넣은 불릿은 부처 원문이 아니다. 조각 양 끝의
+            # 것만 떼고, 뗀 사실은 needs_review로 남긴다 — 조립 자체가 의심스럽다는 뜻.
+            head, tail = _LEADING_MARKUP.sub("", piece), _TRAILING_MARKUP.sub("", buf)
+            stripped = stripped or head != piece or tail != buf
+            buf, piece = tail, head
         buf = f"{buf} {piece}".strip() if buf else piece
         tm = _TERMINATOR.search(buf)
         if tm:
-            return re.sub(r"\s+", " ", buf[: tm.end(1)]).strip(), True
+            return re.sub(r"\s+", " ", buf[: tm.end(1)]).strip(), True, stripped
     if buf.endswith("다"):
         # OCR이 종결 마침표만 지운 경우 — 있는 그대로 회수하되 종결자를 못 찾았다는
         # 사실은 needs_review로 계속 남긴다(호출부에서 처리).
-        return buf, False
-    return None, False
+        return buf, False, stripped
+    return None, False, stripped
 
 
 _LATIN_RUN = re.compile(r"[A-Za-z]{2,}")
@@ -140,7 +160,8 @@ def extract_from_text(text: str, subject: str, source_label: str) -> list:
             state = headers[hi][1]
             hi += 1
 
-        entry = by_code.setdefault(code, {"statement": None, "term_found": False, "body": False})
+        entry = by_code.setdefault(code, {"statement": None, "term_found": False,
+                                          "body": False, "stripped": False})
         window = text[end:next_boundary_after(end)]
         head = re.sub(r"\s+", " ", _LEAD_JUNK.sub("", window)).strip()[:20]
         # 원문 PDF의 해설 상자가 본문 목록 한가운데로 끼어 들어간 문서가 있다(별책8:1324
@@ -155,10 +176,11 @@ def extract_from_text(text: str, subject: str, source_label: str) -> list:
         entry["body"] = True
 
         if entry["statement"] is None:
-            statement, term_found = _statement_in_window(window)
+            statement, term_found, stripped = _statement_in_window(window)
             if statement is not None:
                 entry["statement"] = statement
                 entry["term_found"] = term_found
+                entry["stripped"] = stripped
 
     recs = []
     for code, info in by_code.items():
@@ -171,7 +193,7 @@ def extract_from_text(text: str, subject: str, source_label: str) -> list:
             # 코드의 존재는 원문이 증언하므로 레코드를 지우지는 않는다 — 지우면
             # verify.py가 실재하는 성취기준을 "FAKE"로 몰아세운다.
             "commentary_only": not info["body"],
-            "needs_review": statement is None or not term_found
+            "needs_review": statement is None or not term_found or info["stripped"]
                             or _looks_garbled(statement, subject),
         })
     return recs
