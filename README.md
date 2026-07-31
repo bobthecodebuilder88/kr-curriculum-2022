@@ -37,7 +37,8 @@ $ echo $?
 
 1. **조회** — 성취기준 3294건(초 611 · 중 704 · 고 1979)을 코드·진술문·성취수준(A~E)까지 담은 데이터셋
 2. **인용** — 에이전트가 기억이 아니라 조회 결과만 verbatim 인용하도록 강제하는 [`SKILL.md`](SKILL.md)
-3. **검증** — 이미 쓰인 문서의 가짜 코드·변형 진술문을 잡아내는 `verify.py` (exit code로 CI 게이트)
+3. **검증** — 이미 쓰인 문서의 가짜 코드·변형 진술문·변형 성취수준을 잡아내는 `verify.py`
+   (exit code로 CI 게이트)
 
 ## 설치
 
@@ -73,10 +74,34 @@ python3 scripts/verify.py 수업지도안.md --school 중
 
 ```
 - **[9수01-01]** 소인수분해의 뜻을 알고, 자연수를 소인수분해 할 수 있다. (중·수학·수학) — 교차검증됨·별책
+  - A수준: 소인수분해의 뜻을 설명하고, 자연수를 소인수분해 할 수 있다.
+  - C수준: 소인수분해의 뜻을 알고, 자연수를 소인수의 곱으로 표현할 수 있다.
+  - E수준: 소인수를 알고, 안내된 절차에 따라 자연수를 소인수의 곱으로 표현할 수 있다.
 - **[9수01-02]** 소인수분해를 이용하여 최대공약수와 최소공배수를 구할 수 있다. (중·수학·수학) — 교차검증됨·별책
+  - A수준: 소인수분해를 이용하여 최대공약수와 최소공배수를 구하고 그 원리를 설명할 수 있다.
+  - C수준: 소인수분해를 이용하여 두 수의 최대공약수와 최소공배수를 구할 수 있다.
+  - E수준: 소인수분해 된 두 수의 최대공약수 또는 최소공배수를 구할 수 있다.
 ```
 
 줄 끝의 `— 교차검증됨·별책`이 **신뢰 등급**이다. 이 저장소는 모든 문장에 이 등급을 붙인다.
+딸린 `A수준: …` 줄이 성취수준이고(이 성취기준은 A·C·E 세 등급뿐이다), 이 표기가 그대로
+`verify.py`가 되읽는 형식이다.
+
+`verify.py`가 낼 수 있는 표시는 여덟 가지다.
+
+| 표시 | 뜻 | exit code |
+|---|---|---|
+| `FAKE` | 데이터셋에 없는 코드 | 1 |
+| `MISMATCH` | 코드는 맞지만 진술문이 원문과 다름 | 1 |
+| `NOSTMT` | 코드는 실재하나 진술문 미수록이라 검증 불가 | 1 |
+| `LEVEL` | `--school`과 성취기준의 **학교급** 불일치 | 1 |
+| `LVLDIFF` | `A수준:` 뒤 서술문이 그 등급의 원문과 다름 | 1 |
+| `LVLMISS` | 그 성취기준에 없는 등급을 인용 | 1 |
+| `WARN` | 인용은 데이터셋과 일치하나 그 원문이 미검증 | 0 (경고만) |
+| `LVLNONE` | 성취수준 미수록 성취기준의 등급을 인용 — 검증 불가 | 0 (경고만) |
+
+`LEVEL`은 학교급, `LVL*`은 성취수준(A~E)이다. 이름만 닮은 다른 검사다.
+자세한 규칙과 오탐 피하는 법은 [`SKILL.md`](SKILL.md)의 「검증」에 있다.
 
 ## 무엇이 들어 있나
 
@@ -142,9 +167,11 @@ PDF를 기계로 추출한 결과물이고 오류율을 스스로 공개한 것�
   조회 결과가 없다고 해서 "그런 성취기준은 없다"로 읽으면 안 되는 이유다.
 - **OCR 잔재 50건**, 별책이 손상돼 성취수준표에서 문장을 가져온 것 152건.
 - **성취수준(A~E) 서술문은 위 신뢰 등급의 검증 대상이 아니다.** `statement_verified`는
-  진술문만 대조한 값이고, `verify.py`도 성취수준은 검사하지 않는다. 원문에서 그대로 찾을 수
-  없어 등급 배정이 의심스러운 서술문이 56건 있고, 그중 35건이 이 데이터셋의 성취기준
-  22개에 걸린다(나머지는 여기 싣지 않은 과목의 것이다).
+  진술문만 대조한 값이다. `verify.py`는 성취수준 인용도 검사하지만(`LVLDIFF`·`LVLMISS`·
+  `LVLNONE`), 대조 상대는 고시 원문이 아니라 이 데이터셋의 `levels`다. 원문에서 그대로 찾을
+  수 없어 등급 배정이 의심스러운 서술문이 56건 있고, 그중 35건이 이 데이터셋의 성취기준
+  22개에 걸린다(나머지는 여기 싣지 않은 과목의 것이다). 그 자리는 검사를 통과해도 원문
+  성취수준표를 확인해야 한다.
 - **`true`도 고시 원문과 같다는 보장은 아니다.** 두 문서가 같은 오류를 물려받은 자리는
   이 방법으로 잡히지 않는다.
 
@@ -173,8 +200,8 @@ standards (성취기준) of Korea's 2022 Revised National Curriculum** — 611 e
 
 It ships as an **agent skill**: `SKILL.md` instructs an LLM to look codes up rather than recall
 them, `scripts/lookup.py` queries the dataset, and `scripts/verify.py` scans a finished document
-for fabricated codes and altered statements, exiting non-zero so it can gate CI. Stdlib-only,
-no dependencies.
+for fabricated codes, altered statements, and altered or invented A–E level descriptors, exiting
+non-zero so it can gate CI. Stdlib-only, no dependencies.
 
 Sources are the Ministry of Education's official 고시 (Notice No. 2022-33, appendices 5–18),
 cross-checked character-by-character against the independently produced KICE achievement-level

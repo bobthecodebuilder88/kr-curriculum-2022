@@ -10,6 +10,7 @@
 단언은 한 글자도 무르지 않은 채 마커만 걷어 냈다. 되돌아가면 여기서 터진다.
 """
 import collections
+import importlib.util
 import json
 import re
 import subprocess
@@ -69,7 +70,8 @@ def _one_per_file():
 
 
 SAMPLE = _one_per_file()
-# 정규화 15자 미만 진술문은 verify.py 가 아예 인용으로 보지 않는다(→ 아래 전용 테스트).
+# 짧은 진술문은 변조해도 남는 글자가 적어 검출 여부가 데이터에 따라 갈린다. 여기서는
+# 빼고 전용 테스트(test_short_statements_are_verified_at_all)로 따로 잰다.
 QUOTABLE = [r for r in SAMPLE if len(_norm(r["statement"])) >= MIN_QUOTE_LEN]
 
 
@@ -97,6 +99,66 @@ FABRICATED = [_fabricate(c) for c in NOTATIONS]
 def _mismatched_codes(stdout):
     return {l.split("[", 1)[1].split("]", 1)[0] for l in stdout.splitlines()
             if l.startswith("MISMATCH")}
+
+
+def _verify_module():
+    """태그 목록의 정본은 문서가 아니라 도구다 — 그래서 소스에서 직접 읽는다."""
+    spec = importlib.util.spec_from_file_location("verify_under_test", ROOT / "scripts/verify.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _solo(pred):
+    """조건에 맞으면서 코드가 한 교과에만 있는 레코드. 충돌 코드는 어느 레코드로
+    판정될지가 인용문에 달려 있어, 태그를 하나로 고정하는 픽스처로 쓸 수 없다."""
+    return next(r for r in RECORDS if len(BY_CODE[r["code"]]) == 1 and pred(r))
+
+
+INVENTED_LEVEL = "모든 상황에서 완벽하게 수행하고 다른 학생을 지도할 수 있다."
+
+
+def _tag_table(doc):
+    """`| 표시 |`로 시작하는 표의 첫 열 집합. 본문 어딘가에서 태그를 한 번 언급한 것과
+    표에 행으로 실린 것은 다르다 — 표를 찾아 읽지 않으면 행이 지워져도 검사가 통과한다."""
+    lines = doc.splitlines()
+    start = next(i for i, l in enumerate(lines) if l.startswith("| 표시 "))
+    out = set()
+    for line in lines[start + 2:]:          # 헤더와 구분선을 건너뛴다
+        if not line.startswith("|"):
+            break
+        out.add(line.split("`")[1])
+    return out
+
+
+def _tag_probes():
+    """(태그, 검사받을 문서, `--school` 값) — 태그마다 그 태그가 나와야 하는 최소 문서."""
+    def quotable(r):
+        return r["statement"] and len(_norm(r["statement"])) >= MIN_QUOTE_LEN
+
+    mism = _solo(quotable)
+    nost = next(r for r in RECORDS if r["statement"] is None
+                and not any(x["statement"] for x in BY_CODE[r["code"]]))
+    lvl = _solo(lambda r: r["statement"] and r["school"] == "중")
+    warn = _solo(lambda r: r.get("statement_verified") is False and quotable(r))
+    diff = _solo(lambda r: (r.get("levels") or {}).get("A") and r["statement"])
+    miss = _solo(lambda r: r.get("levels") and set("ABCDE") - set(r["levels"]) and r["statement"])
+    nolv = _solo(lambda r: not r.get("levels") and r["statement"])
+    absent = sorted(set("ABCDE") - set(miss["levels"]))[0]
+    for r in (diff, miss):
+        assert INVENTED_LEVEL not in json.dumps(r["levels"], ensure_ascii=False), \
+            "지어낸 성취수준이 실제 데이터에 생겼다 — 픽스처를 바꿔라"
+    return [
+        ("FAKE", f"[{FABRICATED[0]}] 참고", None),
+        ("MISMATCH", f"[{mism['code']}] {_tamper(mism['statement'])}", None),
+        ("NOSTMT", f"성취기준: [{nost['code']}] 관련 활동을 수행한다.", None),
+        ("LEVEL", f"[{lvl['code']}] {lvl['statement']}", "초"),
+        ("WARN", f"[{warn['code']}] {warn['statement']}", None),
+        ("LVLDIFF", f"[{diff['code']}] {diff['statement']}\n  - A수준: {INVENTED_LEVEL}", None),
+        ("LVLMISS",
+         f"[{miss['code']}] {miss['statement']}\n  - {absent}수준: {INVENTED_LEVEL}", None),
+        ("LVLNONE", f"[{nolv['code']}] {nolv['statement']}\n  - A수준: {INVENTED_LEVEL}", None),
+    ]
 
 
 # --- 약속 1: 지어낸 코드는 FAKE -------------------------------------------
@@ -345,16 +407,58 @@ def test_fabricated_achievement_level_is_detected():
     assert r.returncode == 1, f"성취수준 서술문을 통째로 지어냈는데 통과: {r.stdout}"
 
 
-def test_level_blind_spot_is_disclosed_and_enumerated():
-    """구멍을 못 막으면 최소한 숨기지는 말아야 한다. 등급 배정이 틀렸을 수 있는
-    성취수준 서술문이 코드·등급까지 나열돼, 인용 전에 대조할 수 있는지 본다.
+def test_level_checking_is_disclosed_and_enumerated():
+    """이 자리는 원래 `성취수준은 검사하지 않는다`가 SKILL.md에 있는지 보는 고백이었다.
+    이제 검사하므로 단언을 지우지 않고 반대로 뒤집는다 — 없는 보증을 있다고 말하는 것과
+    있는 보증을 없다고 말하는 것은 똑같이 문서가 거짓말을 하는 것이고, 후자는 사용자가
+    기계 검증을 놔두고 손으로 대조하게 만든다.
+
+    세 가지를 함께 고정한다. ①옛 거짓 문장이 어떤 문서에도 없다 ②`verify.py`가 낼 수
+    있는 태그 전부가 두 문서의 표에 있고, 표에만 있고 못 내는 태그는 없다 ③등급 배정이
+    틀렸을 수 있는 성취수준이 코드·등급까지 나열돼 인용 전에 대조할 수 있다.
+
+    태그 목록은 `scripts/verify.py`에서 뽑는다. 손으로 적으면 태그가 늘 때 같이 늙는다.
+    ②의 '못 내는 태그는 없다' 쪽은 문서를 읽어서는 알 수 없어, 태그마다 실제로 그
+    태그가 나오는 문서를 만들어 돌려 본다.
 
     목록에는 이 데이터셋이 다루지 않는 과목(과학고·보건·예술 계열 등)의 코드도
     섞여 있다 — 성취수준표는 파싱했지만 별책 고시본이 없어 수록하지 않은 과목이다.
     그 코드는 조회할 대상 자체가 없으므로 대조 가능성은 수록된 코드로만 잰다.
     """
     skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
-    assert "성취수준은 검사하지 않는다" in skill
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    docs = [("SKILL.md", skill), ("README.md", readme)]
+
+    # ① 사실이 아니게 된 옛 문장이 어떤 형태로도 남아 있으면 안 된다.
+    for name, doc in docs:
+        assert "성취수준은 검사하지 않는다" not in doc, \
+            f"{name}: verify.py가 성취수준을 검사하는데 안 한다고 적혀 있다"
+
+    # ② 태그 표가 도구와 일치하는가.
+    tags = set(_verify_module()._LABEL)
+    assert {"LVLDIFF", "LVLMISS", "LVLNONE"} <= tags, \
+        f"성취수준 태그가 사라졌다 — verify.py를 확인하라: {sorted(tags)}"
+    for name, doc in docs:
+        table = _tag_table(doc)
+        assert table == tags, (f"{name}의 태그 표가 도구와 어긋난다 — "
+                               f"표에 빠진 태그 {sorted(tags - table)}, "
+                               f"도구가 못 내는데 실린 태그 {sorted(table - tags)}")
+    emitted = set()
+    for tag, doc, school in _tag_probes():
+        r = run("scripts/verify.py", "-", *(("--school", school) if school else ()), stdin=doc)
+        seen = {l.split("[", 1)[0].strip() for l in r.stdout.splitlines() if "[" in l} & tags
+        assert tag in seen, f"{tag}가 나와야 할 문서에서 안 나온다: {r.stdout}"
+        emitted |= seen
+    assert emitted == tags, f"문서에 적혀 있으나 도구가 내지 못하는 태그: {sorted(tags - emitted)}"
+
+    # ②' 예약 슬롯 규칙은 사용자의 정상 문서를 지적할 수 있어, 무엇이 걸리고 무엇을 대신
+    # 써야 하는지까지 SKILL.md의 제 절에 있어야 한다. 없으면 이 규칙은 함정이 된다.
+    # (본문에 낱말이 스쳐 나오는 것으로는 부족해 절을 통째로 떼어 내 검사한다.)
+    heading = "### 코드 바로 뒤 한 칸은 원문 자리다"
+    assert heading in skill.splitlines(), "예약 슬롯 규칙 절이 SKILL.md에서 사라졌다"
+    slot = skill.split(heading, 1)[1].split("\n## ", 1)[0]
+    assert "MISMATCH" in slot and "verify.py" in slot, "규칙을 어겼을 때의 실제 출력 예시가 없다"
+    assert "줄을 나눈다" in slot, "MISMATCH를 피하는 방법이 그 절에 적혀 있지 않다"
 
     report = (ROOT / "validation-report.md").read_text(encoding="utf-8")
     section = report.split("## 원문 대조 실패 성취수준 서술문", 1)
