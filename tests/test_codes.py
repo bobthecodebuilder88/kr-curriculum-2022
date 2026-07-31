@@ -28,3 +28,12 @@ def test_canonical_and_grade_band():
     assert grade_band("9수01-01") == "중1-3"
     assert grade_band("10공수1-01-01") == "고(공통)"
     assert grade_band("12대수01-01") == "고(선택)"
+
+def test_grade_digit_not_swallowed():
+    # PDF artifact glues a stray digit onto the code; the code must still be recovered
+    assert find_codes("19생독04-01]") == ["9생독04-01"]
+    assert canonical("19생독04-01") == "9생독04-01"
+
+def test_rejects_code_shaped_prose():
+    assert find_codes("주소: 경기 동두천시 평화로2910번길 96-63") == []
+    assert find_codes("2022년 개정 12차 회의 자료 96-63 참조") == []
