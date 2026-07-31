@@ -14,6 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 NO_STATEMENT = "진술문 미수록 — 원문 고시본 확인 필요 (지어내지 말 것)"
+NO_LEVELS = "성취수준 미수록 — 원문 성취수준표 확인 필요 (등급을 지어내지 말 것)"
 
 
 def load_all(school=None, subject=None):
@@ -91,6 +92,13 @@ def main():
         for r in hits:
             where = "·".join(x for x in (r["school"], r["subject"], r.get("course")) if x)
             print(f"- **[{r['code']}]** {r['statement'] or NO_STATEMENT} ({where}) — {trust(r)}")
+            # 성취수준도 인용문이다. 조회 결과에 안 보이면 인용하는 쪽이 기억으로 채운다.
+            # `A수준: …` 형식은 verify.py 가 그대로 되읽어 검증하는 형식이기도 하다.
+            levels = r.get("levels") or {}
+            for g in sorted(levels):
+                print(f"  - {g}수준: {levels[g]}")
+            if not levels:
+                print(f"  - {NO_LEVELS}")
     else:
         for r in hits:
             print(json.dumps(r, ensure_ascii=False))

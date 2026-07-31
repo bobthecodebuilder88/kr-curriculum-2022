@@ -114,6 +114,110 @@ def test_lookup_prints_explicit_notice_for_missing_statement():
     assert r.returncode == 0
     assert "진술문 미수록 — 원문 고시본 확인 필요" in r.stdout
 
+# --- 판정을 유사도에서 verbatim 일치로 뒤집은 뒤 지켜야 하는 것들 ---------------
+# 검출 쪽은 tests/test_e2e_redteam.py 가 코퍼스 전수로 재고, 여기서는 되돌아가면
+# 조용히 깨질 자리 — 특히 무고 방지 — 를 짧게 못 박는다.
+
+def _quotable():
+    """진술문이 교차검증된 레코드 하나. WARN 이 섞여 판정이 흐려지지 않게 고른다."""
+    return next(r for r in _all_records()
+                if r["statement"] and r.get("statement_verified") is True
+                and len(r["statement"]) > 20)
+
+
+def test_verify_catches_a_single_character_tamper():
+    """한 글자 치환의 유사도는 (n-1)/n 이라 상대 문턱으로는 절대 못 잡는다.
+    실제 인용자가 가장 흔히 저지르는 변조이고, 문법이 멀쩡해 사람 눈에도 안 걸린다."""
+    rec = _quotable()
+    i = max(i for i, c in enumerate(rec["statement"]) if "가" <= c <= "힣")
+    swapped = rec["statement"][:i] + ("하" if rec["statement"][i] != "하" else "가") \
+        + rec["statement"][i + 1:]
+    r = run("scripts/verify.py", "-", stdin=f"[{rec['code']}] {swapped}")
+    assert r.returncode == 1, f"한 글자를 바꿨는데 통과: {r.stdout}"
+    assert "MISMATCH" in r.stdout
+
+
+def test_verify_names_the_code_whose_statement_was_actually_quoted():
+    """코드 자리에 다른 성취기준의 진술문을 붙이는 것이 2015 개정 혼입의 모양이다.
+    어느 성취기준의 문장인지까지 짚어야 인용자가 무엇을 고칠지 안다."""
+    recs = [r for r in _all_records() if r["statement"] and len(r["statement"]) > 20]
+    a, b = recs[0], next(x for x in recs if x["statement"] != recs[0]["statement"])
+    r = run("scripts/verify.py", "-", stdin=f"[{a['code']}] {b['statement']}")
+    assert r.returncode == 1, f"남의 진술문을 붙였는데 통과: {r.stdout}"
+    assert b["code"] in r.stdout, f"어느 성취기준의 문장인지 안 알려 준다: {r.stdout}"
+
+
+def test_verify_checks_statements_too_short_for_the_old_threshold():
+    """옛 판정은 정규화 15자 미만 진술문을 아예 비교하지 않아 82건이 무검증이었다."""
+    short = next(r for r in _all_records()
+                 if r["statement"] and 6 < len(r["statement"]) < 15)
+    r = run("scripts/verify.py", "-", stdin=f"[{short['code']}] 전혀 다른 내용을 지어내어 적은 문장이다.")
+    assert r.returncode == 1, f"[{short['code']}] 짧은 진술문이 여전히 무검증: {r.stdout}"
+
+
+def test_verify_leaves_prose_about_a_standard_alone():
+    """무고가 미검출만큼 나쁘다. 코드를 언급만 한 문장, 코드에 조사가 붙은 문장,
+    수업 계획을 적은 문장은 인용이 아니다 — 하나라도 MISMATCH가 나면 아무도 안 쓴다."""
+    rec = _quotable()
+    c = rec["code"]
+    for line in [f"[{c}]을 중심으로 차시를 구성하고 모둠 활동과 형성평가를 배치하였다.",
+                 f"관련 성취기준은 [{c}]이다.",
+                 f"[{c}] 이 성취기준은 학기 초에 다루는 것이 좋다.",
+                 f"[{c}] 성취기준을 3차시로 나누어 지도한다.",
+                 f"교사는 [{c}]의 성취수준을 참고하여 평가 기준을 만든다.",
+                 f"[{c}] 학생들이 흥미를 느끼도록 실생활 사례를 활용한다.",
+                 f"- [{c}] (2차시)",
+                 f"## [{c}] 수업 설계"]:
+        r = run("scripts/verify.py", "-", stdin=line)
+        assert r.returncode == 0, f"산문을 오탐: {line}\n{r.stdout}"
+
+
+def test_verify_absorbs_middle_dot_variants_but_nothing_else():
+    """`·⋅･ㆍ`는 같은 글자가 편집기·폰트에 따라 달리 찍힌 것이라 흡수한다. 이 프로젝트가
+    이미 네 번 오탐을 낸 자리다. 나머지 문장 부호는 원문의 일부라 흡수하지 않는다."""
+    rec = next(r for r in _all_records() if r["statement"] and "⋅" in r["statement"])
+    for dot in "·⋅･ㆍ":
+        swapped = rec["statement"].replace("⋅", dot)
+        r = run("scripts/verify.py", "-", stdin=f"[{rec['code']}] {swapped}")
+        assert r.returncode == 0, f"가운뎃점 {dot!r}를 변조로 오탐: {r.stdout}"
+
+
+def _with_levels():
+    return next(r for r in _all_records()
+                if r["statement"] and len((r.get("levels") or {})) >= 2
+                and r.get("statement_verified") is True)
+
+
+def test_verify_checks_quoted_achievement_levels():
+    """성취수준 서술문도 인용문이다. 평가 콘텐츠가 그대로 옮겨 쓰는 자리라 인용
+    위험은 진술문과 같다."""
+    rec = _with_levels()
+    grade, text = sorted(rec["levels"].items())[0]
+    ok = f"[{rec['code']}] {rec['statement']}\n  - {grade}수준: {text}\n"
+    assert run("scripts/verify.py", "-", stdin=ok).returncode == 0, "정확한 성취수준 인용을 오탐"
+
+    fake = ok.replace(text, "모든 상황에서 완벽하게 수행하고 다른 사람을 지도할 수 있다.")
+    r = run("scripts/verify.py", "-", stdin=fake)
+    assert r.returncode == 1 and "LVLDIFF" in r.stdout, f"날조한 성취수준이 통과: {r.stdout}"
+
+    missing = next(g for g in "ABCDE" if g not in rec["levels"])
+    r = run("scripts/verify.py", "-", stdin=ok.replace(f"{grade}수준", f"{missing}수준"))
+    assert r.returncode == 1 and "LVLMISS" in r.stdout, \
+        f"수록되지 않은 {missing}등급을 지어냈는데 통과: {r.stdout}"
+
+
+def test_lookup_md_shows_levels_and_verify_accepts_its_own_output():
+    """조회 결과에 안 보이는 문장은 인용하는 쪽이 기억으로 채운다. 그리고 조회가
+    내놓은 형식을 검증이 그대로 되읽지 못하면 두 도구가 서로 다른 말을 하는 것이다."""
+    rec = _with_levels()
+    md = run("scripts/lookup.py", "--code", rec["code"], "--format", "md")
+    assert md.returncode == 0
+    for grade, text in rec["levels"].items():
+        assert f"{grade}수준: {text}" in md.stdout, f"{grade}수준이 md 출력에 없다"
+    r = run("scripts/verify.py", "-", stdin=md.stdout)
+    assert r.returncode == 0, f"lookup 출력을 verify가 문제라고 한다: {r.stdout}"
+
+
 def test_verify_detects_every_code_shape_in_the_dataset():
     """로마숫자 꼬리(12영Ⅰ-01-01)와 괄호 약어(9사(일사)01-01)까지 인식해야 한다 —
     못 읽는 표기가 있으면 그 표기로 지어낸 코드는 조용히 통과한다."""

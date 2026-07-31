@@ -5,9 +5,9 @@
 같이 사라진다. 이건 가정이 아니라 실측이다 — 이 태스크의 브리프가 예시로 적어 둔
 가짜 코드 `9수03-12`는 실재하는 코드다. 손으로 적은 픽스처는 이렇게 썩는다.
 
-`xfail`로 표시한 세 건은 이 도구가 지금 못 막는 구멍이다. 통과시키려고 단언을 무르지
-않았다. `strict=True`라 구멍이 막히면 XPASS로 터지므로, 고친 사람이 이 파일을 같이
-고치게 된다.
+이 파일은 처음에 네 건을 `xfail(strict=True)`로 남겼다 — 그때 이 도구가 못 막던 구멍이다.
+넷 다 `scripts/verify.py`에서 막혔고(판정을 상대 유사도에서 verbatim 일치로 뒤집었다),
+단언은 한 글자도 무르지 않은 채 마커만 걷어 냈다. 되돌아가면 여기서 터진다.
 """
 import collections
 import json
@@ -15,8 +15,6 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-
-import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -46,8 +44,9 @@ for _r in RECORDS:
     BY_CODE[_r["code"]].append(_r)
 COLLISIONS = sorted(c for c, v in BY_CODE.items() if len({x["subject"] for x in v}) > 1)
 
-# verify.py 가 인용 여부를 판정하는 정규화·최소 길이와 같은 값. 여기가 어긋나면
-# 아래 두 테스트가 재는 대상이 달라지므로 scripts/verify.py 를 고칠 때 같이 본다.
+# 옛 verify.py 가 "인용으로 볼 만한 길이"로 삼던 값. 지금은 verify.py 에 이 하한이
+# 없다(길이와 무관하게 verbatim 으로 판정한다). 여기서는 옛 사각지대였던 짧은
+# 진술문을 골라내는 기준으로만 남는다 — 그 82건이 이제 검사되는지를 재기 위해서다.
 _NORM = re.compile(r"[\s.,·\]\)〕】］|」』》]+")
 MIN_QUOTE_LEN = 15
 
@@ -162,16 +161,14 @@ def test_tampered_statement_is_reported_mismatch():
     assert not missed, f"뒷부분을 고쳐 쓴 인용이 통과한다: {missed}"
 
 
-@pytest.mark.xfail(strict=True, reason="구멍: 유사도 문턱(0.92)이 상대값이라 "
-                                       "한 글자·한 낱말 변조는 길이에 묻혀 통과한다")
 def test_small_tamper_is_reported_mismatch():
-    """조사 하나(를→을)는 정규화 후 한 글자 차이다. 유사도는 (n-1)/n 이고 인용으로
-    인정되는 최소 길이가 15자라 이 값은 절대 0.92 아래로 못 내려간다 — 즉 한 글자
-    변조는 구조적으로 검출 불가다. 긴 진술문에서는 낱말 하나를 통째로 떨어뜨려도
-    마찬가지다(132자 진술문에서 9자 이상 바뀌어야 잡힌다).
+    """조사 하나(를→을)는 정규화 후 한 글자 차이다. 옛 판정은 유사도 0.92 미만만
+    지적했는데 한 글자 치환의 유사도는 (n-1)/n 이라 길이와 무관하게 그 위였다 —
+    구조적으로 검출 불가였다(코퍼스 전수: 조사 변조 3185건 중 검출 0건).
 
+    지금은 유사도가 아니라 verbatim 일치로 판정하므로 길이에 묻히지 않는다.
     이건 인용자가 저지르는 가장 현실적인 오류이고, 문법이 멀쩡해서 사람이 읽어도
-    안 걸린다. 고치려면 문턱을 상대값이 아니라 편집 거리 절대값으로 잡아야 한다.
+    안 걸리는 종류다.
     """
     particle = next(r for r in RECORDS if r["statement"] and "를 " in r["statement"])
     swapped = particle["statement"].replace("를 ", "을 ", 1)
@@ -185,17 +182,15 @@ def test_small_tamper_is_reported_mismatch():
     assert r.returncode == 1, f"낱말 하나를 떨어뜨렸는데 통과: {r.stdout}"
 
 
-@pytest.mark.xfail(strict=True, reason="구멍: 유사도 0.55 이하는 '인용이 아니다'로 "
-                                       "처리돼, 많이 다른 문장은 검사조차 되지 않는다")
 def test_wholly_different_wording_under_a_real_code_is_caught():
-    """2015 개정 혼입을 잡는다는 약속이 걸린 자리다. 코드는 실재하고 진술문만 다른
-    문서를 MISMATCH가 잡아 준다고 했지만, 두 문장이 55%보다 덜 닮으면 verify.py는
-    그걸 인용이 아니라 산문으로 보고 넘긴다. 같은 교과의 이웃 성취기준 문장을
-    가져다 붙이면 코퍼스 전체에서 95.5%가 이렇게 통과한다.
+    """2015 개정 혼입을 잡는다는 약속이 걸린 자리다. 옛 판정은 두 문장이 55%보다 덜
+    닮으면 인용이 아니라 산문으로 보고 넘겼고, 같은 교과의 이웃 성취기준 문장을
+    가져다 붙인 2991쌍 중 95.4%가 그렇게 통과했다.
 
     문턱을 낮추는 것으로는 못 고친다 — 코드만 언급한 산문을 MISMATCH로 부르게 되고
-    그건 test_exact_quotation_is_never_accused 가 막는 실패다. 인용인지 아닌지를
-    유사도가 아니라 인용 부호·줄 구조로 판정해야 닫히는 구멍이다.
+    그건 test_exact_quotation_is_never_accused 가 막는 실패다. 지금은 유사도가
+    아니라 두 가지 증거로 판정한다: 그 자리에 다른 성취기준의 진술문이 통째로
+    들어앉았거나(결정적), 코드에서 떨어진 자리에 완결된 서술문이 왔거나(인용 형식).
     """
     subject_recs = collections.defaultdict(list)
     for x in RECORDS:
@@ -208,12 +203,12 @@ def test_wholly_different_wording_under_a_real_code_is_caught():
         f"[{a['code']}]의 진술문 자리에 [{b['code']}]의 문장을 넣었는데 통과: {r.stdout}")
 
 
-@pytest.mark.xfail(strict=True, reason="구멍: 정규화 15자 미만 진술문은 인용으로 "
-                                       "인정되지 않아 어떤 문장을 붙여도 검사되지 않는다")
 def test_short_statements_are_verified_at_all():
-    """`_ratio`가 15자 미만 조각을 -1.0으로 되돌려 보내므로, 진술문이 짧은 성취기준은
-    인용문을 통째로 지어내도 OK가 나온다. 지금 82건(2.5%)이 이 사각지대에 있고
-    수학·과학 계열처럼 문장이 짧은 교과에 몰려 있다."""
+    """옛 `_ratio`는 15자 미만 조각을 -1.0으로 되돌려 보냈고, 그래서 진술문이 짧은
+    성취기준 82건(2.5%)은 인용문을 통째로 지어내도 OK가 나왔다. 수학·과학 계열처럼
+    문장이 짧은 교과에 몰려 있다. verbatim 판정에는 최소 길이가 없어 사각지대가
+    사라졌다 — 82건 중 81건이 검출된다(남은 1건은 진술문이 `다` 한 글자로 손상된
+    12중어04-03로, 데이터 쪽 결함이다)."""
     short = [r for r in RECORDS if r["statement"] and len(_norm(r["statement"])) < MIN_QUOTE_LEN]
     assert short, "짧은 진술문이 사라졌다면 이 구멍도 사라진 것 — 테스트를 지워라"
     victim = short[0]
@@ -334,16 +329,13 @@ def test_bare_code_passes_but_school_flag_catches_the_level():
         "verify.py가 못 잡는 것을 SKILL.md가 밝히지 않으면 OK가 거짓 보증이 된다"
 
 
-@pytest.mark.xfail(strict=True, reason="구멍: 성취수준(A~E) 서술문은 어느 검증 경로도 "
-                                       "보지 않는다 — 통째로 지어내도 OK가 나온다")
 def test_fabricated_achievement_level_is_detected():
-    """`statement_verified`는 진술문만 검증한 값이고 verify.py도 성취수준은 안 본다.
-    평가 콘텐츠는 성취수준 서술문을 그대로 옮겨 쓰는 자리라 인용 위험은 진술문과
-    같은데, 기계 방어선만 없다. 레코드에 `levels_verified`에 해당하는 필드조차 없다.
+    """평가 콘텐츠는 성취수준 서술문을 그대로 옮겨 쓰는 자리라 인용 위험은 진술문과
+    같은데, 예전에는 기계 방어선이 하나도 없었다. 지금은 `A수준: …`처럼 등급을
+    명시한 자리를 진술문과 같은 방식으로 검증한다.
 
-    덤: `lookup.py --format md`는 levels를 아예 출력하지 않는다. SKILL.md가 권하는
-    출력 형식이 인용하라고 지시한 문장을 보여 주지 않는 셈이라, 조회한 에이전트가
-    A~E를 기억으로 채우기 딱 좋다.
+    `lookup.py --format md`가 levels를 출력하지 않던 짝 문제도 같이 닫혔다 —
+    이제 같은 `A수준: …` 형식으로 내보내므로 조회 결과를 그대로 인용하면 통과한다.
     """
     rec = next(r for r in RECORDS if (r.get("levels") or {}).get("A") and r["statement"])
     fabricated = "모든 상황에서 완벽하게 수행하고 다른 학생을 지도할 수 있다."
