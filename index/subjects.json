@@ -1,0 +1,1353 @@
+[
+  {
+    "abbr": "공국1",
+    "grade_prefix": "10",
+    "subject": "국어",
+    "course_name": "공통국어1",
+    "school": "고"
+  },
+  {
+    "abbr": "공국2",
+    "grade_prefix": "10",
+    "subject": "국어",
+    "course_name": "공통국어2",
+    "school": "고"
+  },
+  {
+    "abbr": "공수1",
+    "grade_prefix": "10",
+    "subject": "수학",
+    "course_name": "공통수학1",
+    "school": "고"
+  },
+  {
+    "abbr": "공수2",
+    "grade_prefix": "10",
+    "subject": "수학",
+    "course_name": "공통수학2",
+    "school": "고"
+  },
+  {
+    "abbr": "공영1",
+    "grade_prefix": "10",
+    "subject": "영어",
+    "course_name": "공통영어1",
+    "school": "고"
+  },
+  {
+    "abbr": "공영2",
+    "grade_prefix": "10",
+    "subject": "영어",
+    "course_name": "공통영어2",
+    "school": "고"
+  },
+  {
+    "abbr": "과탐1",
+    "grade_prefix": "10",
+    "subject": "과학",
+    "course_name": "과학탐구실험1",
+    "school": "고"
+  },
+  {
+    "abbr": "과탐2",
+    "grade_prefix": "10",
+    "subject": "과학",
+    "course_name": "과학탐구실험2",
+    "school": "고"
+  },
+  {
+    "abbr": "기수1",
+    "grade_prefix": "10",
+    "subject": "수학",
+    "course_name": "기본수학1",
+    "school": "고"
+  },
+  {
+    "abbr": "기수2",
+    "grade_prefix": "10",
+    "subject": "수학",
+    "course_name": "기본수학2",
+    "school": "고"
+  },
+  {
+    "abbr": "기영1",
+    "grade_prefix": "10",
+    "subject": "영어",
+    "course_name": "기본영어1",
+    "school": "고"
+  },
+  {
+    "abbr": "기영2",
+    "grade_prefix": "10",
+    "subject": "영어",
+    "course_name": "기본영어2",
+    "school": "고"
+  },
+  {
+    "abbr": "통과1",
+    "grade_prefix": "10",
+    "subject": "과학",
+    "course_name": "통합과학1",
+    "school": "고"
+  },
+  {
+    "abbr": "통과2",
+    "grade_prefix": "10",
+    "subject": "과학",
+    "course_name": "통합과학2",
+    "school": "고"
+  },
+  {
+    "abbr": "통사1",
+    "grade_prefix": "10",
+    "subject": "사회",
+    "course_name": "통합사회 1",
+    "school": "고"
+  },
+  {
+    "abbr": "통사2",
+    "grade_prefix": "10",
+    "subject": "사회",
+    "course_name": "통합사회 2",
+    "school": "고"
+  },
+  {
+    "abbr": "한사1",
+    "grade_prefix": "10",
+    "subject": "사회",
+    "course_name": "한국사1",
+    "school": "고"
+  },
+  {
+    "abbr": "한사2",
+    "grade_prefix": "10",
+    "subject": "사회",
+    "course_name": "한국사2",
+    "school": "고"
+  },
+  {
+    "abbr": "감비",
+    "grade_prefix": "12",
+    "subject": "음악",
+    "course_name": "음악 감상과 비평",
+    "school": "고"
+  },
+  {
+    "abbr": "경수",
+    "grade_prefix": "12",
+    "subject": "수학",
+    "course_name": "경제 수학",
+    "school": "고"
+  },
+  {
+    "abbr": "경제",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "경제",
+    "school": "고"
+  },
+  {
+    "abbr": "과사",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "과학의 역사와 문화",
+    "school": "고"
+  },
+  {
+    "abbr": "국관",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "국제 관계의 이해",
+    "school": "고"
+  },
+  {
+    "abbr": "금융",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "금융과 경제생활",
+    "school": "고"
+  },
+  {
+    "abbr": "기가",
+    "grade_prefix": "12",
+    "subject": "실과·기술가정·정보",
+    "course_name": "기술⋅가정",
+    "school": "고"
+  },
+  {
+    "abbr": "기지",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "기후변화와 지속가능한 세계",
+    "school": "고"
+  },
+  {
+    "abbr": "기하",
+    "grade_prefix": "12",
+    "subject": "수학",
+    "course_name": "기하",
+    "school": "고"
+  },
+  {
+    "abbr": "기환",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "기후변화와 환경생태",
+    "school": "고"
+  },
+  {
+    "abbr": "대수",
+    "grade_prefix": "12",
+    "subject": "수학",
+    "course_name": "대수",
+    "school": "고"
+  },
+  {
+    "abbr": "데과",
+    "grade_prefix": "12",
+    "subject": "실과·기술가정·정보",
+    "course_name": "데이터 과학",
+    "school": "고"
+  },
+  {
+    "abbr": "도탐",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "도시의 미래 탐구",
+    "school": "고"
+  },
+  {
+    "abbr": "독문",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "독일어권 문화",
+    "school": "고"
+  },
+  {
+    "abbr": "독어",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "독일어",
+    "school": "고"
+  },
+  {
+    "abbr": "독작",
+    "grade_prefix": "12",
+    "subject": "국어",
+    "course_name": "독서와 작문",
+    "school": "고"
+  },
+  {
+    "abbr": "독토",
+    "grade_prefix": "12",
+    "subject": "국어",
+    "course_name": "독서 토론과 글쓰기",
+    "school": "고"
+  },
+  {
+    "abbr": "독회",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "독일어 회화",
+    "school": "고"
+  },
+  {
+    "abbr": "동역",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "동아시아 역사 기행",
+    "school": "고"
+  },
+  {
+    "abbr": "러문",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "러시아 문화",
+    "school": "고"
+  },
+  {
+    "abbr": "러어",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "러시아어",
+    "school": "고"
+  },
+  {
+    "abbr": "러회",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "러시아어 회화",
+    "school": "고"
+  },
+  {
+    "abbr": "로봇",
+    "grade_prefix": "12",
+    "subject": "실과·기술가정·정보",
+    "course_name": "로봇과 공학세계",
+    "school": "고"
+  },
+  {
+    "abbr": "매의",
+    "grade_prefix": "12",
+    "subject": "국어",
+    "course_name": "매체 의사소통",
+    "school": "고"
+  },
+  {
+    "abbr": "문영",
+    "grade_prefix": "12",
+    "subject": "국어",
+    "course_name": "문학과 영상",
+    "school": "고"
+  },
+  {
+    "abbr": "문학",
+    "grade_prefix": "12",
+    "subject": "국어",
+    "course_name": "문학",
+    "school": "고"
+  },
+  {
+    "abbr": "물리",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "물리학",
+    "school": "고"
+  },
+  {
+    "abbr": "물에",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "물질과 에너지",
+    "school": "고"
+  },
+  {
+    "abbr": "미",
+    "grade_prefix": "12",
+    "subject": "미술",
+    "course_name": "미술",
+    "school": "고"
+  },
+  {
+    "abbr": "미감",
+    "grade_prefix": "12",
+    "subject": "미술",
+    "course_name": "미술 감상과 비평",
+    "school": "고"
+  },
+  {
+    "abbr": "미매",
+    "grade_prefix": "12",
+    "subject": "미술",
+    "course_name": "미술과 매체",
+    "school": "고"
+  },
+  {
+    "abbr": "미영",
+    "grade_prefix": "12",
+    "subject": "영어",
+    "course_name": "미디어 영어",
+    "school": "고"
+  },
+  {
+    "abbr": "미적Ⅰ",
+    "grade_prefix": "12",
+    "subject": "수학",
+    "course_name": "미적분Ⅰ",
+    "school": "고"
+  },
+  {
+    "abbr": "미적Ⅱ",
+    "grade_prefix": "12",
+    "subject": "수학",
+    "course_name": "미적분Ⅱ",
+    "school": "고"
+  },
+  {
+    "abbr": "미창",
+    "grade_prefix": "12",
+    "subject": "미술",
+    "course_name": "미술 창작",
+    "school": "고"
+  },
+  {
+    "abbr": "반응",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "화학 반응의 세계",
+    "school": "고"
+  },
+  {
+    "abbr": "법사",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "법과 사회",
+    "school": "고"
+  },
+  {
+    "abbr": "베문",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "베트남 문화",
+    "school": "고"
+  },
+  {
+    "abbr": "베어",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "베트남어",
+    "school": "고"
+  },
+  {
+    "abbr": "베회",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "베트남어 회화",
+    "school": "고"
+  },
+  {
+    "abbr": "사문",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "사회와 문화",
+    "school": "고"
+  },
+  {
+    "abbr": "사탐",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "사회문제 탐구",
+    "school": "고"
+  },
+  {
+    "abbr": "생과",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "생명과학",
+    "school": "고"
+  },
+  {
+    "abbr": "생활",
+    "grade_prefix": "12",
+    "subject": "실과·기술가정·정보",
+    "course_name": "생활과학 탐구",
+    "school": "고"
+  },
+  {
+    "abbr": "세사",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "세계사",
+    "school": "고"
+  },
+  {
+    "abbr": "세영",
+    "grade_prefix": "12",
+    "subject": "영어",
+    "course_name": "세계 문화와 영어",
+    "school": "고"
+  },
+  {
+    "abbr": "세지",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "세계시민과 지리",
+    "school": "고"
+  },
+  {
+    "abbr": "세포",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "세포와 물질대사",
+    "school": "고"
+  },
+  {
+    "abbr": "소생",
+    "grade_prefix": "12",
+    "subject": "실과·기술가정·정보",
+    "course_name": "소프트웨어와 생활",
+    "school": "고"
+  },
+  {
+    "abbr": "수과",
+    "grade_prefix": "12",
+    "subject": "수학",
+    "course_name": "수학과제 탐구",
+    "school": "고"
+  },
+  {
+    "abbr": "수문",
+    "grade_prefix": "12",
+    "subject": "수학",
+    "course_name": "수학과 문화",
+    "school": "고"
+  },
+  {
+    "abbr": "스과",
+    "grade_prefix": "12",
+    "subject": "체육",
+    "course_name": "스포츠 과학",
+    "school": "고"
+  },
+  {
+    "abbr": "스문",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "스페인어권 문화",
+    "school": "고"
+  },
+  {
+    "abbr": "스문",
+    "grade_prefix": "12",
+    "subject": "체육",
+    "course_name": "스포츠 문화",
+    "school": "고"
+  },
+  {
+    "abbr": "스생1",
+    "grade_prefix": "12",
+    "subject": "체육",
+    "course_name": "스포츠 생활1",
+    "school": "고"
+  },
+  {
+    "abbr": "스생2",
+    "grade_prefix": "12",
+    "subject": "체육",
+    "course_name": "스포츠 생활2",
+    "school": "고"
+  },
+  {
+    "abbr": "스어",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "스페인어",
+    "school": "고"
+  },
+  {
+    "abbr": "스회",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "스페인어 회화",
+    "school": "고"
+  },
+  {
+    "abbr": "실영",
+    "grade_prefix": "12",
+    "subject": "영어",
+    "course_name": "실생활 영어 회화",
+    "school": "고"
+  },
+  {
+    "abbr": "실통",
+    "grade_prefix": "12",
+    "subject": "수학",
+    "course_name": "실용 통계",
+    "school": "고"
+  },
+  {
+    "abbr": "심독",
+    "grade_prefix": "12",
+    "subject": "영어",
+    "course_name": "심화 영어 독해와 작문",
+    "school": "고"
+  },
+  {
+    "abbr": "심독",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "심화 독일어",
+    "school": "고"
+  },
+  {
+    "abbr": "심러",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "심화 러시아어",
+    "school": "고"
+  },
+  {
+    "abbr": "심베",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "심화 베트남어",
+    "school": "고"
+  },
+  {
+    "abbr": "심스",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "심화 스페인어",
+    "school": "고"
+  },
+  {
+    "abbr": "심아",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "심화 아랍어",
+    "school": "고"
+  },
+  {
+    "abbr": "심영",
+    "grade_prefix": "12",
+    "subject": "영어",
+    "course_name": "심화 영어",
+    "school": "고"
+  },
+  {
+    "abbr": "심일",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "심화 일본어",
+    "school": "고"
+  },
+  {
+    "abbr": "심중",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "심화 중국어",
+    "school": "고"
+  },
+  {
+    "abbr": "심프",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "심화 프랑스어",
+    "school": "고"
+  },
+  {
+    "abbr": "아동",
+    "grade_prefix": "12",
+    "subject": "실과·기술가정·정보",
+    "course_name": "아동발달과 부모",
+    "school": "고"
+  },
+  {
+    "abbr": "아문",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "아랍 문화",
+    "school": "고"
+  },
+  {
+    "abbr": "아어",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "아랍어",
+    "school": "고"
+  },
+  {
+    "abbr": "아회",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "아랍어 회화",
+    "school": "고"
+  },
+  {
+    "abbr": "언탐",
+    "grade_prefix": "12",
+    "subject": "국어",
+    "course_name": "언어생활 탐구",
+    "school": "고"
+  },
+  {
+    "abbr": "언한",
+    "grade_prefix": "12",
+    "subject": "한문",
+    "course_name": "언어생활과 한자",
+    "school": "고"
+  },
+  {
+    "abbr": "여지",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "여행지리",
+    "school": "고"
+  },
+  {
+    "abbr": "역학",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "역학과 에너지",
+    "school": "고"
+  },
+  {
+    "abbr": "역현",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "역사로 탐구하는 현대 세계",
+    "school": "고"
+  },
+  {
+    "abbr": "연창",
+    "grade_prefix": "12",
+    "subject": "음악",
+    "course_name": "음악 연주와 창작",
+    "school": "고"
+  },
+  {
+    "abbr": "영Ⅰ",
+    "grade_prefix": "12",
+    "subject": "영어",
+    "course_name": "영어Ⅰ",
+    "school": "고"
+  },
+  {
+    "abbr": "영Ⅱ",
+    "grade_prefix": "12",
+    "subject": "영어",
+    "course_name": "영어Ⅱ",
+    "school": "고"
+  },
+  {
+    "abbr": "영독",
+    "grade_prefix": "12",
+    "subject": "영어",
+    "course_name": "영어 독해와 작문",
+    "school": "고"
+  },
+  {
+    "abbr": "영문",
+    "grade_prefix": "12",
+    "subject": "영어",
+    "course_name": "영미 문학 읽기",
+    "school": "고"
+  },
+  {
+    "abbr": "영발",
+    "grade_prefix": "12",
+    "subject": "영어",
+    "course_name": "영어 발표와 토론",
+    "school": "고"
+  },
+  {
+    "abbr": "운건",
+    "grade_prefix": "12",
+    "subject": "체육",
+    "course_name": "운동과 건강",
+    "school": "고"
+  },
+  {
+    "abbr": "유전",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "생물의 유전",
+    "school": "고"
+  },
+  {
+    "abbr": "윤사",
+    "grade_prefix": "12",
+    "subject": "도덕",
+    "course_name": "윤리와 사상",
+    "school": "고"
+  },
+  {
+    "abbr": "윤탐",
+    "grade_prefix": "12",
+    "subject": "도덕",
+    "course_name": "윤리문제 탐구",
+    "school": "고"
+  },
+  {
+    "abbr": "융탐",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "융합과학 탐구",
+    "school": "고"
+  },
+  {
+    "abbr": "음",
+    "grade_prefix": "12",
+    "subject": "음악",
+    "course_name": "음악",
+    "school": "고"
+  },
+  {
+    "abbr": "음미",
+    "grade_prefix": "12",
+    "subject": "음악",
+    "course_name": "음악과 미디어",
+    "school": "고"
+  },
+  {
+    "abbr": "인기",
+    "grade_prefix": "12",
+    "subject": "실과·기술가정·정보",
+    "course_name": "인공지능 기초",
+    "school": "고"
+  },
+  {
+    "abbr": "인수",
+    "grade_prefix": "12",
+    "subject": "수학",
+    "course_name": "인공지능 수학",
+    "school": "고"
+  },
+  {
+    "abbr": "인윤",
+    "grade_prefix": "12",
+    "subject": "도덕",
+    "course_name": "인문학과 윤리",
+    "school": "고"
+  },
+  {
+    "abbr": "일문",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "일본 문화",
+    "school": "고"
+  },
+  {
+    "abbr": "일어",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "일본어",
+    "school": "고"
+  },
+  {
+    "abbr": "일회",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "일본어 회화",
+    "school": "고"
+  },
+  {
+    "abbr": "자립",
+    "grade_prefix": "12",
+    "subject": "실과·기술가정·정보",
+    "course_name": "생애 설계와 자립",
+    "school": "고"
+  },
+  {
+    "abbr": "전자",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "전자기와 양자",
+    "school": "고"
+  },
+  {
+    "abbr": "정",
+    "grade_prefix": "12",
+    "subject": "실과·기술가정·정보",
+    "course_name": "정보",
+    "school": "고"
+  },
+  {
+    "abbr": "정치",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "정치",
+    "school": "고"
+  },
+  {
+    "abbr": "주탐",
+    "grade_prefix": "12",
+    "subject": "국어",
+    "course_name": "주제 탐구 독서",
+    "school": "고"
+  },
+  {
+    "abbr": "중문",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "중국 문화",
+    "school": "고"
+  },
+  {
+    "abbr": "중어",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "중국어",
+    "school": "고"
+  },
+  {
+    "abbr": "중회",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "중국어 회화",
+    "school": "고"
+  },
+  {
+    "abbr": "지구",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "지구과학",
+    "school": "고"
+  },
+  {
+    "abbr": "지시",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "지구시스템과학",
+    "school": "고"
+  },
+  {
+    "abbr": "지재",
+    "grade_prefix": "12",
+    "subject": "실과·기술가정·정보",
+    "course_name": "지식 재산 일반",
+    "school": "고"
+  },
+  {
+    "abbr": "직수",
+    "grade_prefix": "12",
+    "subject": "수학",
+    "course_name": "직무 수학",
+    "school": "고"
+  },
+  {
+    "abbr": "직영",
+    "grade_prefix": "12",
+    "subject": "영어",
+    "course_name": "직무 영어",
+    "school": "고"
+  },
+  {
+    "abbr": "직의",
+    "grade_prefix": "12",
+    "subject": "국어",
+    "course_name": "직무 의사소통",
+    "school": "고"
+  },
+  {
+    "abbr": "창공",
+    "grade_prefix": "12",
+    "subject": "실과·기술가정·정보",
+    "course_name": "창의 공학 설계",
+    "school": "고"
+  },
+  {
+    "abbr": "체육1",
+    "grade_prefix": "12",
+    "subject": "체육",
+    "course_name": "체육1",
+    "school": "고"
+  },
+  {
+    "abbr": "체육2",
+    "grade_prefix": "12",
+    "subject": "체육",
+    "course_name": "체육2",
+    "school": "고"
+  },
+  {
+    "abbr": "프문",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "프랑스어권 문화",
+    "school": "고"
+  },
+  {
+    "abbr": "프어",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "프랑스어",
+    "school": "고"
+  },
+  {
+    "abbr": "프회",
+    "grade_prefix": "12",
+    "subject": "제2외국어",
+    "course_name": "프랑스어 회화",
+    "school": "고"
+  },
+  {
+    "abbr": "한고",
+    "grade_prefix": "12",
+    "subject": "한문",
+    "course_name": "한문 고전 읽기",
+    "school": "고"
+  },
+  {
+    "abbr": "한문",
+    "grade_prefix": "12",
+    "subject": "한문",
+    "course_name": "한문",
+    "school": "고"
+  },
+  {
+    "abbr": "한탐",
+    "grade_prefix": "12",
+    "subject": "사회",
+    "course_name": "한국지리 탐구",
+    "school": "고"
+  },
+  {
+    "abbr": "행우",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "행성우주과학",
+    "school": "고"
+  },
+  {
+    "abbr": "현윤",
+    "grade_prefix": "12",
+    "subject": "도덕",
+    "course_name": "현대사회와 윤리",
+    "school": "고"
+  },
+  {
+    "abbr": "화언",
+    "grade_prefix": "12",
+    "subject": "국어",
+    "course_name": "화법과 언어",
+    "school": "고"
+  },
+  {
+    "abbr": "화학",
+    "grade_prefix": "12",
+    "subject": "과학",
+    "course_name": "화학",
+    "school": "고"
+  },
+  {
+    "abbr": "확통",
+    "grade_prefix": "12",
+    "subject": "수학",
+    "course_name": "확률과 통계",
+    "school": "고"
+  },
+  {
+    "abbr": "국",
+    "grade_prefix": "2",
+    "subject": "국어",
+    "course_name": "국어",
+    "school": "초"
+  },
+  {
+    "abbr": "바",
+    "grade_prefix": "2",
+    "subject": "통합교과",
+    "course_name": "바른 생활",
+    "school": "초"
+  },
+  {
+    "abbr": "수",
+    "grade_prefix": "2",
+    "subject": "수학",
+    "course_name": "수학",
+    "school": "초"
+  },
+  {
+    "abbr": "슬",
+    "grade_prefix": "2",
+    "subject": "통합교과",
+    "course_name": "슬기로운 생활",
+    "school": "초"
+  },
+  {
+    "abbr": "즐",
+    "grade_prefix": "2",
+    "subject": "통합교과",
+    "course_name": "즐거운 생활",
+    "school": "초"
+  },
+  {
+    "abbr": "과",
+    "grade_prefix": "4",
+    "subject": "과학",
+    "course_name": "과학",
+    "school": "초"
+  },
+  {
+    "abbr": "국",
+    "grade_prefix": "4",
+    "subject": "국어",
+    "course_name": "국어",
+    "school": "초"
+  },
+  {
+    "abbr": "도",
+    "grade_prefix": "4",
+    "subject": "도덕",
+    "course_name": "도덕",
+    "school": "초"
+  },
+  {
+    "abbr": "미",
+    "grade_prefix": "4",
+    "subject": "미술",
+    "course_name": "미술",
+    "school": "초"
+  },
+  {
+    "abbr": "사",
+    "grade_prefix": "4",
+    "subject": "사회",
+    "course_name": "사회",
+    "school": "초"
+  },
+  {
+    "abbr": "수",
+    "grade_prefix": "4",
+    "subject": "수학",
+    "course_name": "수학",
+    "school": "초"
+  },
+  {
+    "abbr": "영",
+    "grade_prefix": "4",
+    "subject": "영어",
+    "course_name": "영어",
+    "school": "초"
+  },
+  {
+    "abbr": "음",
+    "grade_prefix": "4",
+    "subject": "음악",
+    "course_name": "음악",
+    "school": "초"
+  },
+  {
+    "abbr": "체",
+    "grade_prefix": "4",
+    "subject": "체육",
+    "course_name": "체육",
+    "school": "초"
+  },
+  {
+    "abbr": "과",
+    "grade_prefix": "6",
+    "subject": "과학",
+    "course_name": "과학",
+    "school": "초"
+  },
+  {
+    "abbr": "국",
+    "grade_prefix": "6",
+    "subject": "국어",
+    "course_name": "국어",
+    "school": "초"
+  },
+  {
+    "abbr": "도",
+    "grade_prefix": "6",
+    "subject": "도덕",
+    "course_name": "도덕",
+    "school": "초"
+  },
+  {
+    "abbr": "미",
+    "grade_prefix": "6",
+    "subject": "미술",
+    "course_name": "미술",
+    "school": "초"
+  },
+  {
+    "abbr": "사",
+    "grade_prefix": "6",
+    "subject": "사회",
+    "course_name": "사회",
+    "school": "초"
+  },
+  {
+    "abbr": "수",
+    "grade_prefix": "6",
+    "subject": "수학",
+    "course_name": "수학",
+    "school": "초"
+  },
+  {
+    "abbr": "실",
+    "grade_prefix": "6",
+    "subject": "실과·기술가정·정보",
+    "course_name": "실과(기술⋅가정)",
+    "school": "초"
+  },
+  {
+    "abbr": "영",
+    "grade_prefix": "6",
+    "subject": "영어",
+    "course_name": "영어",
+    "school": "초"
+  },
+  {
+    "abbr": "음",
+    "grade_prefix": "6",
+    "subject": "음악",
+    "course_name": "음악",
+    "school": "초"
+  },
+  {
+    "abbr": "체",
+    "grade_prefix": "6",
+    "subject": "체육",
+    "course_name": "체육",
+    "school": "초"
+  },
+  {
+    "abbr": "과",
+    "grade_prefix": "9",
+    "subject": "과학",
+    "course_name": "과학",
+    "school": "중"
+  },
+  {
+    "abbr": "국",
+    "grade_prefix": "9",
+    "subject": "국어",
+    "course_name": "국어",
+    "school": "중"
+  },
+  {
+    "abbr": "기가",
+    "grade_prefix": "9",
+    "subject": "실과·기술가정·정보",
+    "course_name": "실과(기술⋅가정)",
+    "school": "중"
+  },
+  {
+    "abbr": "도",
+    "grade_prefix": "9",
+    "subject": "도덕",
+    "course_name": "도덕",
+    "school": "중"
+  },
+  {
+    "abbr": "미",
+    "grade_prefix": "9",
+    "subject": "미술",
+    "course_name": "미술",
+    "school": "중"
+  },
+  {
+    "abbr": "보",
+    "grade_prefix": "9",
+    "subject": "중학교 선택",
+    "course_name": "보건",
+    "school": "중"
+  },
+  {
+    "abbr": "사(일사)",
+    "grade_prefix": "9",
+    "subject": "사회",
+    "course_name": "사회",
+    "school": "중"
+  },
+  {
+    "abbr": "사(지리)",
+    "grade_prefix": "9",
+    "subject": "사회",
+    "course_name": "사회",
+    "school": "중"
+  },
+  {
+    "abbr": "생독",
+    "grade_prefix": "9",
+    "subject": "제2외국어",
+    "course_name": "생활 독일어",
+    "school": "중"
+  },
+  {
+    "abbr": "생러",
+    "grade_prefix": "9",
+    "subject": "제2외국어",
+    "course_name": "생활 러시아어",
+    "school": "중"
+  },
+  {
+    "abbr": "생베",
+    "grade_prefix": "9",
+    "subject": "제2외국어",
+    "course_name": "생활 베트남어",
+    "school": "중"
+  },
+  {
+    "abbr": "생스",
+    "grade_prefix": "9",
+    "subject": "제2외국어",
+    "course_name": "생활 스페인어",
+    "school": "중"
+  },
+  {
+    "abbr": "생아",
+    "grade_prefix": "9",
+    "subject": "제2외국어",
+    "course_name": "생활 아랍어",
+    "school": "중"
+  },
+  {
+    "abbr": "생일",
+    "grade_prefix": "9",
+    "subject": "제2외국어",
+    "course_name": "생활 일본어",
+    "school": "중"
+  },
+  {
+    "abbr": "생중",
+    "grade_prefix": "9",
+    "subject": "제2외국어",
+    "course_name": "생활 중국어",
+    "school": "중"
+  },
+  {
+    "abbr": "생프",
+    "grade_prefix": "9",
+    "subject": "제2외국어",
+    "course_name": "생활 프랑스어",
+    "school": "중"
+  },
+  {
+    "abbr": "수",
+    "grade_prefix": "9",
+    "subject": "수학",
+    "course_name": "수학",
+    "school": "중"
+  },
+  {
+    "abbr": "역",
+    "grade_prefix": "9",
+    "subject": "사회",
+    "course_name": "역사",
+    "school": "중"
+  },
+  {
+    "abbr": "영",
+    "grade_prefix": "9",
+    "subject": "영어",
+    "course_name": "영어",
+    "school": "중"
+  },
+  {
+    "abbr": "음",
+    "grade_prefix": "9",
+    "subject": "음악",
+    "course_name": "음악",
+    "school": "중"
+  },
+  {
+    "abbr": "정",
+    "grade_prefix": "9",
+    "subject": "실과·기술가정·정보",
+    "course_name": "정보",
+    "school": "중"
+  },
+  {
+    "abbr": "진로",
+    "grade_prefix": "9",
+    "subject": "중학교 선택",
+    "course_name": "진로와 직업",
+    "school": "중"
+  },
+  {
+    "abbr": "체",
+    "grade_prefix": "9",
+    "subject": "체육",
+    "course_name": "체육",
+    "school": "중"
+  },
+  {
+    "abbr": "한",
+    "grade_prefix": "9",
+    "subject": "한문",
+    "course_name": "한문",
+    "school": "중"
+  },
+  {
+    "abbr": "환",
+    "grade_prefix": "9",
+    "subject": "중학교 선택",
+    "course_name": "환경",
+    "school": "중"
+  }
+]

@@ -1,0 +1,221 @@
+{
+  "files": [
+    {
+      "path": "data/고/과학.jsonl",
+      "school": "고",
+      "subject": "과학",
+      "count": 284
+    },
+    {
+      "path": "data/고/국어.jsonl",
+      "school": "고",
+      "subject": "국어",
+      "count": 119
+    },
+    {
+      "path": "data/고/도덕.jsonl",
+      "school": "고",
+      "subject": "도덕",
+      "count": 57
+    },
+    {
+      "path": "data/고/미술.jsonl",
+      "school": "고",
+      "subject": "미술",
+      "count": 36
+    },
+    {
+      "path": "data/고/사회.jsonl",
+      "school": "고",
+      "subject": "사회",
+      "count": 251
+    },
+    {
+      "path": "data/고/수학.jsonl",
+      "school": "고",
+      "subject": "수학",
+      "count": 254
+    },
+    {
+      "path": "data/고/실과·기술가정·정보.jsonl",
+      "school": "고",
+      "subject": "실과·기술가정·정보",
+      "count": 204
+    },
+    {
+      "path": "data/고/영어.jsonl",
+      "school": "고",
+      "subject": "영어",
+      "count": 209
+    },
+    {
+      "path": "data/고/음악.jsonl",
+      "school": "고",
+      "subject": "음악",
+      "count": 37
+    },
+    {
+      "path": "data/고/제2외국어.jsonl",
+      "school": "고",
+      "subject": "제2외국어",
+      "count": 447
+    },
+    {
+      "path": "data/고/체육.jsonl",
+      "school": "고",
+      "subject": "체육",
+      "count": 48
+    },
+    {
+      "path": "data/고/한문.jsonl",
+      "school": "고",
+      "subject": "한문",
+      "count": 33
+    },
+    {
+      "path": "data/중/과학.jsonl",
+      "school": "중",
+      "subject": "과학",
+      "count": 87
+    },
+    {
+      "path": "data/중/국어.jsonl",
+      "school": "중",
+      "subject": "국어",
+      "count": 51
+    },
+    {
+      "path": "data/중/도덕.jsonl",
+      "school": "중",
+      "subject": "도덕",
+      "count": 22
+    },
+    {
+      "path": "data/중/미술.jsonl",
+      "school": "중",
+      "subject": "미술",
+      "count": 13
+    },
+    {
+      "path": "data/중/사회.jsonl",
+      "school": "중",
+      "subject": "사회",
+      "count": 114
+    },
+    {
+      "path": "data/중/수학.jsonl",
+      "school": "중",
+      "subject": "수학",
+      "count": 60
+    },
+    {
+      "path": "data/중/실과·기술가정·정보.jsonl",
+      "school": "중",
+      "subject": "실과·기술가정·정보",
+      "count": 77
+    },
+    {
+      "path": "data/중/영어.jsonl",
+      "school": "중",
+      "subject": "영어",
+      "count": 21
+    },
+    {
+      "path": "data/중/음악.jsonl",
+      "school": "중",
+      "subject": "음악",
+      "count": 13
+    },
+    {
+      "path": "data/중/제2외국어.jsonl",
+      "school": "중",
+      "subject": "제2외국어",
+      "count": 124
+    },
+    {
+      "path": "data/중/중학교 선택.jsonl",
+      "school": "중",
+      "subject": "중학교 선택",
+      "count": 59
+    },
+    {
+      "path": "data/중/체육.jsonl",
+      "school": "중",
+      "subject": "체육",
+      "count": 51
+    },
+    {
+      "path": "data/중/한문.jsonl",
+      "school": "중",
+      "subject": "한문",
+      "count": 12
+    },
+    {
+      "path": "data/초/과학.jsonl",
+      "school": "초",
+      "subject": "과학",
+      "count": 102
+    },
+    {
+      "path": "data/초/국어.jsonl",
+      "school": "초",
+      "subject": "국어",
+      "count": 87
+    },
+    {
+      "path": "data/초/도덕.jsonl",
+      "school": "초",
+      "subject": "도덕",
+      "count": 24
+    },
+    {
+      "path": "data/초/미술.jsonl",
+      "school": "초",
+      "subject": "미술",
+      "count": 26
+    },
+    {
+      "path": "data/초/사회.jsonl",
+      "school": "초",
+      "subject": "사회",
+      "count": 49
+    },
+    {
+      "path": "data/초/수학.jsonl",
+      "school": "초",
+      "subject": "수학",
+      "count": 121
+    },
+    {
+      "path": "data/초/실과·기술가정·정보.jsonl",
+      "school": "초",
+      "subject": "실과·기술가정·정보",
+      "count": 39
+    },
+    {
+      "path": "data/초/영어.jsonl",
+      "school": "초",
+      "subject": "영어",
+      "count": 40
+    },
+    {
+      "path": "data/초/음악.jsonl",
+      "school": "초",
+      "subject": "음악",
+      "count": 26
+    },
+    {
+      "path": "data/초/체육.jsonl",
+      "school": "초",
+      "subject": "체육",
+      "count": 49
+    },
+    {
+      "path": "data/초/통합교과.jsonl",
+      "school": "초",
+      "subject": "통합교과",
+      "count": 48
+    }
+  ],
+  "total": 3294
+}
