@@ -37,3 +37,8 @@ def test_grade_digit_not_swallowed():
 def test_rejects_code_shaped_prose():
     assert find_codes("주소: 경기 동두천시 평화로2910번길 96-63") == []
     assert find_codes("2022년 개정 12차 회의 자료 96-63 참조") == []
+
+def test_ocr_corrupted_brackets_still_recognized():
+    # 별책16:10292 — PDF OCR mangled [ ] into ( | on a real standard in the
+    # sequential list 12독문01-01..07; the code must survive.
+    assert find_codes("(12독문01-05| 독일어권 문화를 해석한다.") == ["12독문01-05"]
