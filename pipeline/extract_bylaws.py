@@ -87,15 +87,6 @@ def _statement_in_window(window: str):
     return None, False
 
 
-# 코드에서 과목 약어만 떼어낸다: 6사12-02 → 사, 12독문01-04 → 독문, 10공국1-01-01 → 공국1
-_ABBR_OF = re.compile(r"^(?:10|12|[2469])(.+?)(?:-\d{2}-\d{2}|\d{2}-\d{2})$")
-
-
-def _abbr(code: str) -> str:
-    m = _ABBR_OF.match(code)
-    return m.group(1) if m else code
-
-
 _LATIN_RUN = re.compile(r"[A-Za-z]{2,}")
 # 실측된 정상 라틴 토큰은 단위(cm, mm, km, kg, mL, pH)이거나 대문자 약어(DNA, SSI,
 # ATP, LMO, ENSO, SDGs)뿐이다. 이 두 모양만 통과시킨다.
@@ -169,37 +160,75 @@ def extract_from_text(text: str, subject: str, source_label: str) -> list:
                 entry["statement"] = statement
                 entry["term_found"] = term_found
 
-    # 해설에만 등장하고 그 과목 약어가 이 문서의 본문 목록에 한 번도 안 나오는 코드는
-    # 이 문서가 정의한 성취기준이 아니라 다른 교과를 인용한 것이다(별책5:1726 국어
-    # 고려 사항이 사회 성취기준 [6사12-02]를 인용). 레코드를 만들면 "국어가 6사12-02를
-    # 정의한다"는 거짓이 된다. 반면 약어가 본문에 있으면(12독문01-04) 원문이 OCR로
-    # 뭉개진 진짜 구멍이므로 statement=null 로 남긴다.
-    body_abbrs = {_abbr(c) for c, i in by_code.items() if i["body"]}
-
     recs = []
     for code, info in by_code.items():
-        if not info["body"] and _abbr(code) not in body_abbrs:
-            continue
         statement, term_found = info["statement"], info["term_found"]
         recs.append({
             "code": code, "subject": subject, "statement": statement, "source": source_label,
+            # 진술문은 본문 등장에서만 나온다 — 해설은 출처가 될 수 없으므로 null.
+            "statement_source": "body" if statement else None,
+            # 본문 목록에 한 번도 안 나오고 해설에서만 보인 코드. 진술문은 못 주지만
+            # 코드의 존재는 원문이 증언하므로 레코드를 지우지는 않는다 — 지우면
+            # verify.py가 실재하는 성취기준을 "FAKE"로 몰아세운다.
+            "commentary_only": not info["body"],
             "needs_review": statement is None or not term_found
                             or _looks_garbled(statement, subject),
         })
     return recs
 
 
+# 코드의 학년+약어 접두: 6사12-02 → 6사, 12심독02-02 → 12심독, 10공국1-01-01 → 10공국
+_PREFIX = re.compile(r"^((?:10|12|[2469])\D+)")
+
+
+def drop_cross_references(recs: list) -> tuple:
+    """다른 별책이 본문 진술문으로 정의한 코드를 해설에서 인용만 한 레코드를 걷어낸다.
+
+    별책5:1727 국어 고려 사항은 사회 성취기준 [6사12-02]를 인용한다 — 국어 레코드로
+    남기면 "국어가 6사12-02를 정의한다"는 거짓이 되고, 진짜 정의는 이미 사회에 있다.
+
+    두 가지를 모두 만족해야 인용으로 본다. (1) 그 코드를 다른 별책이 본문 진술문으로
+    정의하고 있고, (2) 그 코드의 학년+약어 접두가 자기 문서 본문에는 한 번도 없다.
+    (2)가 없으면 코드 네임스페이스 충돌에 걸린다 — 12심독은 제2외국어에서 '심화 독일어',
+    영어에서 '심화 영어 독해'로 서로 다른 성취기준인데, 제2외국어의 12심독02-02가
+    영어 쪽 정의를 인용한 것으로 오판되어 사라진다. 별책16에는 12심독 본문이 실제로
+    있으므로 (2)가 이를 막는다.
+
+    반대로 별책16의 해설 전용 코드들(12아회01-01, 9생종04-02 …)은 코퍼스 어디에도
+    본문 정의가 없다 — 인용이 아니라 OCR이 본문 목록을 지운 자리이므로 남긴다.
+    반환: (남길 레코드, 제외한 레코드).
+    """
+    def prefix(code):
+        m = _PREFIX.match(code)
+        return m.group(1) if m else code
+
+    defined = {r["code"] for r in recs if r["statement"]}
+    own = {(r["subject"], prefix(r["code"])) for r in recs if r["statement"]}
+
+    def is_cross(r):
+        return (r["commentary_only"] and r["code"] in defined
+                and (r["subject"], prefix(r["code"])) not in own)
+
+    return [r for r in recs if not is_cross(r)], [r for r in recs if is_cross(r)]
+
+
 def main():
     from pipeline.sources import BYLAWS
     out = Path(__file__).resolve().parent.parent / "data" / "raw"
     out.mkdir(parents=True, exist_ok=True)
-    n = 0
+    recs = [r for e in BYLAWS
+            for r in extract_from_text(load_text(e["path"]), e["subject"], e["source_label"])]
+    # 교차참조 판정은 코퍼스 전체를 봐야 가능하다(한 문서만 봐서는 인용인지 OCR 구멍인지
+    # 구별할 수 없다). 문서별 추출은 그대로 두고 여기서만 대조한다.
+    kept, cross = drop_cross_references(recs)
     with open(out / "standards.jsonl", "w", encoding="utf-8") as f:
-        for e in BYLAWS:
-            for r in extract_from_text(load_text(e["path"]), e["subject"], e["source_label"]):
-                f.write(json.dumps(r, ensure_ascii=False) + "\n")
-                n += 1
-    print(f"standards.jsonl: {n} records")
+        for r in kept:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    for r in cross:
+        defined_in = sorted({o["subject"] for o in kept
+                             if o["code"] == r["code"] and o["statement"]})
+        print(f"교차참조 제외: {r['subject']} / {r['code']} — 본문 정의는 {defined_in}에 있음")
+    print(f"standards.jsonl: {len(kept)} records ({len(cross)} excluded)")
 
 
 if __name__ == "__main__":

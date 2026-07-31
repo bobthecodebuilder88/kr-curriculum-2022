@@ -1,5 +1,5 @@
 from pipeline.sources import BYLAWS, LEVEL_DOCS
-from pipeline.extract_bylaws import extract_from_text
+from pipeline.extract_bylaws import extract_from_text, drop_cross_references
 
 def test_all_manifest_files_exist():
     for e in BYLAWS:
@@ -123,9 +123,35 @@ def test_commentary_only_code_gets_null_not_promoted():
     recs = extract_from_text(COMMENTARY_ONLY_SAMPLE, subject="제2외국어", source_label="[별책16]")
     by_code = {r["code"]: r for r in recs}
     assert by_code["12독문01-01"]["statement"] == "독일어권 문화에 대한 다양한 내용을 이해한다."
+    assert by_code["12독문01-01"]["statement_source"] == "body"
+    assert by_code["12독문01-01"]["commentary_only"] is False
     assert "12독문01-04" in by_code  # 해설에서라도 등장은 했다 — 없었던 것처럼 지우지 않는다
     assert by_code["12독문01-04"]["statement"] is None  # 해설 문장을 진술문 자리에 채우지 않는다
+    assert by_code["12독문01-04"]["statement_source"] is None
+    assert by_code["12독문01-04"]["commentary_only"] is True
     assert by_code["12독문01-04"]["needs_review"] is True
+
+# 별책16 36552행과 3953행, 원문 100% 그대로(OCR 잡음·깨진 마커 전부 보존). 두 코드 모두
+# 별책16 어디에도 본문 목록 등장이 없고 해설에서만 나타난다. 실제 성취기준인데 PDF 변환이
+# 본문을 지운 자리이므로, 레코드를 지우면 verify.py가 실재하는 코드를 FAKE로 몰아세운다.
+COMMENTARY_ONLY_REAL_SAMPLE = """(가) 성취기준 해설
+
+* [12아회01-01] 이 성취기준은 아랍어의 자음과 모음, 발음기호, 강세, 억양, 장
+
+을 듣고 상황에 맞게 몸짓이나 말로
+
+© 19생종04-02] 이 성취기준은 다양한 유형의 텍스트에서 요구되
+"""
+
+def test_commentary_only_codes_are_kept_with_flags_not_dropped():
+    recs = extract_from_text(COMMENTARY_ONLY_REAL_SAMPLE, subject="제2외국어", source_label="[별책16]")
+    by_code = {r["code"]: r for r in recs}
+    for code in ("12아회01-01", "9생종04-02"):
+        r = by_code[code]
+        assert r["statement"] is None          # 해설 문장을 진술문으로 올리지 않는다
+        assert r["statement_source"] is None
+        assert r["commentary_only"] is True    # 왜 비었는지를 기록한다
+        assert r["needs_review"] is True
 
 # 별책12(음악) 518~528행, 원문 100% 그대로(끝 공백 제외). 한 줄에 코드 3개가 붙어 나오는 실제
 # 사례(520행) + 그다음 코드가 별도 줄(522행) + 해설 재등장(526, 528행, "이 성취기준은…").
@@ -313,11 +339,39 @@ CROSS_SUBJECT_REFERENCE_SAMPLE = """(나) 성취기준 적용 시 고려 사항
 통합적 활동을 수행하도록 한다.
 """
 
-def test_cross_subject_citation_does_not_become_a_record():
-    """다른 교과의 성취기준을 인용한 것뿐인데 레코드를 만들면 '국어가 6사12-02를 정의한다'는
-    거짓이 된다. 그 약어가 이 문서 본문 목록에 한 번도 없으면 레코드를 만들지 않는다."""
-    recs = extract_from_text(CROSS_SUBJECT_REFERENCE_SAMPLE, subject="국어", source_label="[별책5]")
-    assert recs == []
+# 별책7(사회) 1673~1674행, 원문 100% 그대로(줄바꿈 위치까지) — 위 인용이 가리키는 진짜 정의처.
+SOCIAL_STUDIES_BODY_SAMPLE = """[6사12-02] 지구촌을 위협하는 다양한 문제들을 파악하고, 지속가능한 미래를 위한 해결 방안을 탐색
+한다.
+"""
+
+def test_cross_subject_citation_excluded_but_real_definition_kept():
+    """다른 교과의 성취기준을 인용한 것뿐인데 국어 레코드로 남기면 '국어가 6사12-02를
+    정의한다'는 거짓이 된다. 진짜 정의는 사회에 있으므로 그쪽만 남는다."""
+    korean = extract_from_text(CROSS_SUBJECT_REFERENCE_SAMPLE, subject="국어", source_label="[별책5]")
+    social = extract_from_text(SOCIAL_STUDIES_BODY_SAMPLE, subject="사회", source_label="[별책7]")
+    # 문서 하나만 봐서는 인용인지 OCR 구멍인지 알 수 없으므로 추출 단계에선 남긴다
+    assert [r["code"] for r in korean] == ["6사12-02"]
+    assert korean[0]["commentary_only"] is True
+    # 코퍼스 전체를 대조하는 단계에서만 제외된다
+    kept, cross = drop_cross_references(korean + social)
+    assert [(r["subject"], r["code"]) for r in cross] == [("국어", "6사12-02")]
+    assert [(r["subject"], r["code"]) for r in kept] == [("사회", "6사12-02")]
+    assert kept[0]["statement"].startswith("지구촌을 위협하는")
+
+def test_code_namespace_collision_is_not_a_cross_reference():
+    """12심독은 제2외국어에선 '심화 독일어', 영어에선 '심화 영어 독해'로 서로 다른 성취기준이다.
+    '다른 별책에 같은 코드가 있다'만으로 제외하면 제2외국어의 해설 전용 12심독02-02가
+    영어 쪽 정의를 인용한 것으로 오판되어 사라진다."""
+    foreign = [{"code": "12심독02-02", "subject": "제2외국어", "statement": None,
+                "statement_source": None, "commentary_only": True, "needs_review": True},
+               # 같은 문서에 12심독 본문 정의가 실제로 존재한다 — 이게 오판을 막는 신호
+               {"code": "12심독01-01", "subject": "제2외국어", "statement": "독일어 문장을 읽고 이해한다.",
+                "statement_source": "body", "commentary_only": False, "needs_review": False}]
+    english = [{"code": "12심독02-02", "subject": "영어", "statement": "글의 목적을 파악한다.",
+                "statement_source": "body", "commentary_only": False, "needs_review": False}]
+    kept, cross = drop_cross_references(foreign + english)
+    assert cross == []
+    assert ("제2외국어", "12심독02-02") in [(r["subject"], r["code"]) for r in kept]
 
 # ---------------------------------------------------------------------------
 # 전 코퍼스 게이트. 위 fixture 테스트들이 규칙 하나하나를 지키는 반면, 아래 둘은
@@ -326,20 +380,25 @@ def test_cross_subject_citation_does_not_become_a_record():
 # ---------------------------------------------------------------------------
 import re
 from pipeline.clean import load_text
+from pipeline.codes import find_codes
 
-def _extract_all():
-    return {e["subject"]: (extract_from_text(load_text(e["path"]), e["subject"], e["source_label"]),
-                           re.sub(r"\s+", " ", load_text(e["path"])))
-            for e in BYLAWS}
+def _shipped():
+    """main()이 실제로 써 내는 것과 같은 레코드 목록 + 과목별 정규화 원문."""
+    recs, src = [], {}
+    for e in BYLAWS:
+        text = load_text(e["path"])
+        recs += extract_from_text(text, e["subject"], e["source_label"])
+        src[e["subject"]] = re.sub(r"\s+", " ", text)
+    kept, cross = drop_cross_references(recs)
+    return kept, cross, src
 
 def test_every_statement_appears_verbatim_in_its_source():
     """공백 정규화 외에는 원문 그대로여야 한다. 섹션 헤더를 건너뛰어 이어붙이거나 쪽 머리말을
     삼키거나 다른 코드의 문장을 접합하면 정규화된 원문에서 그 문자열을 찾을 수 없다 —
     즉 이 한 줄이 '접합·지어냄 없음'을 코퍼스 전체에 대해 증명한다."""
-    offenders = []
-    for subject, (recs, src) in _extract_all().items():
-        offenders += [(subject, r["code"], r["statement"])
-                      for r in recs if r["statement"] and r["statement"] not in src]
+    kept, _, src = _shipped()
+    offenders = [(r["subject"], r["code"], r["statement"])
+                 for r in kept if r["statement"] and r["statement"] not in src[r["subject"]]]
     assert offenders == [], offenders[:5]
 
 # 이 12개 교과는 원문이 온전해 진술문을 하나도 놓칠 이유가 없다. 제2외국어·도덕은 원문 자체가
@@ -348,21 +407,37 @@ _CLEAN_SUBJECTS = ["국어", "사회", "수학", "과학", "실과·기술가정
                    "음악", "미술", "영어", "통합교과", "한문", "중학교 선택"]
 
 def test_coverage_no_nulls_in_clean_subjects_and_overall_under_10pct():
-    all_recs, holes = [], {}
-    for subject, (recs, _) in _extract_all().items():
-        all_recs += recs
-        if subject in _CLEAN_SUBJECTS:
-            nulls = [r["code"] for r in recs if r["statement"] is None]
-            if nulls:
-                holes[subject] = nulls
+    kept, _, _ = _shipped()
+    holes = {}
+    for s in _CLEAN_SUBJECTS:
+        nulls = [r["code"] for r in kept if r["subject"] == s and r["statement"] is None]
+        if nulls:
+            holes[s] = nulls
     assert holes == {}, holes
-    null_rate = sum(1 for r in all_recs if r["statement"] is None) / len(all_recs)
-    assert null_rate < 0.10, null_rate
-    assert len(all_recs) >= 3136, len(all_recs)
+    assert sum(1 for r in kept if r["statement"] is None) / len(kept) < 0.10
+    assert len(kept) >= 3144, len(kept)
 
 def test_no_commentary_text_promoted_anywhere_in_corpus():
-    for subject, (recs, _) in _extract_all().items():
-        for r in recs:
-            s = r["statement"]
-            assert s is None or not s.startswith("이 성취기준"), (subject, r["code"], s)
-            assert s is None or "성취기준 해설" not in s, (subject, r["code"], s)
+    """해설 문장이 진술문 자리에 올라오지 않았는지. 섹션 헤더 '자체'가 진술문에 섞였는지를 보되,
+    '고려 사항'이라는 낱말만으로 걸지 않는다 — 별책18:1153 [9진로03-01]의 진짜 진술문이
+    "진로의사결정의 방법과 고려 사항을 이해하고…"라서, 낱말 단위 검사는 정상 레코드를 잡는다."""
+    headers = ("성취기준 해설", "성취기준 적용 시 고려 사항")
+    kept, _, _ = _shipped()
+    for r in kept:
+        s = r["statement"]
+        assert s is None or not s.startswith("이 성취기준"), (r["subject"], r["code"], s)
+        assert s is None or not any(h in s for h in headers), (r["subject"], r["code"], s)
+
+def test_no_unexplained_drops():
+    """원문에서 인식된 코드는 그 문서의 과목으로 반드시 실려야 한다 — 유일한 예외는
+    교차참조로 제외된 것뿐이고, 그건 제외 목록에 이유와 함께 남는다."""
+    kept, cross, _ = _shipped()
+    shipped = {(r["subject"], r["code"]) for r in kept}
+    excluded = {(r["subject"], r["code"]) for r in cross}
+    missing = set()
+    for e in BYLAWS:
+        for code in find_codes(load_text(e["path"])):
+            if (e["subject"], code) not in shipped:
+                missing.add((e["subject"], code))
+    assert missing == excluded, {"설명 안 된 누락": missing - excluded}
+    assert excluded == {("국어", "6사12-02")}, excluded
