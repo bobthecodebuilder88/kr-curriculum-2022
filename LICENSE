@@ -1,0 +1,37 @@
+MIT License
+
+Copyright (c) 2026 Bob Park (Huemone)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+The MIT license above covers the code in this repository (pipeline/, scripts/,
+tests/) and its documentation.
+
+Data files under data/ and browse/ are verbatim extracts of public works
+(교육부 고시 제2022-33호 별책 5~18 and the accompanying 성취수준 documents
+published by 교육부 and 한국교육과정평가원) of the Korean Ministry of Education.
+Those works are public-domain-equivalent 공공저작물 released under KOGL
+(공공누리, https://www.kogl.or.kr). No copyright is claimed over the Ministry's
+text. When reusing the data, attribute 교육부 · 한국교육과정평가원 as the
+original source. See references/sources.md for per-document attribution.
+
+This is an unofficial project and is not affiliated with, endorsed by, or
+reviewed by 교육부 or 한국교육과정평가원.

@@ -1,0 +1,67 @@
+name: ci
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pytest
+
+      - name: unit tests
+        run: python3 -m pytest tests/ -v
+
+      - name: smoke — lookup finds a known standard
+        run: |
+          out=$(python3 scripts/lookup.py --school 중 --subject 수학 --keyword 소인수분해 --format md)
+          echo "$out"
+          echo "$out" | grep -qF '[9수01-01]'
+          echo "$out" | grep -qF '소인수분해의 뜻을 알고, 자연수를 소인수분해 할 수 있다.'
+
+      - name: smoke — lookup refuses to invent a missing code
+        run: |
+          if python3 scripts/lookup.py --code 9수05-08 --format md; then
+            echo "FAIL: lookup returned a hit for a code that does not exist"; exit 1
+          fi
+
+      - name: smoke — verify catches a fabricated code
+        run: |
+          if echo '[9수05-08] 이차함수의 그래프의 성질을 이해할 수 있다.' | python3 scripts/verify.py -; then
+            echo "FAIL: verify passed a fabricated code"; exit 1
+          fi
+
+      - name: smoke — verify catches an altered statement
+        run: |
+          if echo '[9수01-01] 소인수분해의 뜻을 이해하고, 자연수를 소인수분해 할 수 있다.' | python3 scripts/verify.py -; then
+            echo "FAIL: verify passed an altered statement"; exit 1
+          fi
+
+      - name: smoke — verify passes a correct citation
+        run: |
+          echo '[9수01-01] 소인수분해의 뜻을 알고, 자연수를 소인수분해 할 수 있다.' \
+            | python3 scripts/verify.py - --school 중
+
+      - name: browse/ is regenerated from data/
+        run: |
+          python3 -m pipeline.generate_views
+          git diff --exit-code -- browse/
+
+      # verify.py 를 리포 전체에 돌리면 안 된다. validation-report.md 는 이 데이터셋이
+      # 싣지 '않은' 코드를 일부러 나열하고, README.md·SKILL.md 는 가짜 코드와 변형
+      # 진술문을 예시로 싣는다 — 셋 다 구조적으로 언제나 exit 1 이다.
+      # 검사 대상은 browse/ 의 생성된 표로만 한정한다. 그중 제2외국어 2개 파일은
+      # 진술문 미수록(NOSTMT) 레코드를 담고 있어 역시 항상 exit 1 이라 제외한다.
+      - name: generated browse tables cite their own data correctly
+        run: |
+          n=0
+          for f in browse/*/*.md; do
+            if grep -qF '진술문 미수록' "$f"; then continue; fi
+            python3 scripts/verify.py "$f" > /dev/null || { python3 scripts/verify.py "$f"; exit 1; }
+            n=$((n+1))
+          done
+          echo "verified $n browse tables"
+          test "$n" -eq 34
