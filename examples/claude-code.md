@@ -3,7 +3,7 @@
 ## 설치
 
 ```bash
-git clone https://github.com/<YOUR_GITHUB_ID>/kr-curriculum-2022 ~/.claude/skills/kr-curriculum-2022
+git clone https://github.com/bobthecodebuilder88/kr-curriculum-2022 ~/.claude/skills/kr-curriculum-2022
 ```
 
 이게 전부다. 별도 설정 파일도, 의존성 설치도 없다.

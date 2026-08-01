@@ -6,7 +6,7 @@
 > queryable dataset, a citation verifier, and an agent skill — so an LLM looks a
 > curriculum code up instead of inventing one.
 
-[![CI](https://github.com/<YOUR_GITHUB_ID>/kr-curriculum-2022/actions/workflows/ci.yml/badge.svg)](https://github.com/<YOUR_GITHUB_ID>/kr-curriculum-2022/actions/workflows/ci.yml)
+[![CI](https://github.com/bobthecodebuilder88/kr-curriculum-2022/actions/workflows/ci.yml/badge.svg)](https://github.com/bobthecodebuilder88/kr-curriculum-2022/actions/workflows/ci.yml)
 ![standards](https://img.shields.io/badge/standards-3294-blue)
 ![license](https://img.shields.io/badge/code-MIT-informational)
 
@@ -45,7 +45,7 @@ $ echo $?
 **Claude Code (스킬):**
 
 ```bash
-git clone https://github.com/<YOUR_GITHUB_ID>/kr-curriculum-2022 ~/.claude/skills/kr-curriculum-2022
+git clone https://github.com/bobthecodebuilder88/kr-curriculum-2022 ~/.claude/skills/kr-curriculum-2022
 ```
 
 `SKILL.md`의 description을 보고 교육과정 관련 작업에서 자동으로 발동한다.

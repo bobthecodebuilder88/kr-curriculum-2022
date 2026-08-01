@@ -3,7 +3,7 @@
 ## 설치
 
 ```bash
-git clone https://github.com/<YOUR_GITHUB_ID>/kr-curriculum-2022 ~/kr-curriculum-2022
+git clone https://github.com/bobthecodebuilder88/kr-curriculum-2022 ~/kr-curriculum-2022
 ```
 
 Codex는 Claude Code처럼 스킬을 자동 발동하지 않는다. 규칙을 `AGENTS.md`에 직접 적어야 한다.

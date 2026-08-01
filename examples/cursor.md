@@ -3,7 +3,7 @@
 ## 설치
 
 ```bash
-git clone https://github.com/<YOUR_GITHUB_ID>/kr-curriculum-2022 ~/kr-curriculum-2022
+git clone https://github.com/bobthecodebuilder88/kr-curriculum-2022 ~/kr-curriculum-2022
 ```
 
 프로젝트에 `.cursor/rules/kr-curriculum.mdc` 파일을 만든다.
