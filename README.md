@@ -226,6 +226,22 @@ Topics: `korean-curriculum` `education` `k12` `claude-skill` `agent-skills` `llm
 (별책 번호·쪽수)**를 이슈에 적어 달라. 데이터 파일은 손으로 고치지 않는다 —
 `pipeline/`이 다시 생성하므로 파이프라인이나 `pipeline/exceptions.json`을 고쳐야 한다.
 
+### 추출을 다시 돌리려면
+
+고시 원문 문서(약 93MB)가 있어야 한다. 저작권 문제가 아니라 크기 때문에 저장소에 싣지
+않았다 — 출처와 문서 목록은 [`references/sources.md`](references/sources.md)에 있다.
+원문을 구했다면 폴더 경로를 환경 변수로 넘긴다. 추적되는 파일을 고칠 필요는 없다.
+
+```bash
+export KR_CURRICULUM_SOURCE_DIR=/원문/폴더/경로   # 미설정 시 pipeline/sources.py 의 기본 경로
+python3 -m pipeline.extract_bylaws    # → data/raw/standards.jsonl
+python3 -m pipeline.extract_levels    # → data/raw/levels.jsonl
+python3 -m pipeline.build             # → data/, validation-report.md
+python3 -m pipeline.generate_views    # → browse/
+```
+
+원문이 없으면 원문을 직접 읽는 테스트 7개는 스스로 skip 한다. 나머지 97개는 그대로 돈다.
+
 ## 라이선스·출처
 
 코드는 **MIT**([LICENSE](LICENSE)).

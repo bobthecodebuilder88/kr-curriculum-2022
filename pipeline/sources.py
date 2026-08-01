@@ -1,7 +1,13 @@
 """별책 원문·성취수준 문서 소스 매니페스트."""
+import os
 from pathlib import Path
 
-SOURCE_DIR = Path("/Users/bobpark/Desktop/ai_orca/작업물/260731-22년개정교육과정및성취기준SKILL/기반자료/교육과정_성취기준")
+# 원문 문서는 저장소에 싣지 않는다(93MB). 원문을 따로 구해 추출을 다시 돌리려면
+# KR_CURRICULUM_SOURCE_DIR 에 그 폴더를 지정한다 — 이 파일을 고칠 필요가 없다.
+# 기본값은 이 데이터셋을 만든 환경의 경로다.
+SOURCE_DIR = Path(os.environ.get(
+    "KR_CURRICULUM_SOURCE_DIR",
+    "/Users/bobpark/Desktop/ai_orca/작업물/260731-22년개정교육과정및성취기준SKILL/기반자료/교육과정_성취기준"))
 
 def _b(rel, subject):
     return {"path": SOURCE_DIR / rel, "subject": subject,
