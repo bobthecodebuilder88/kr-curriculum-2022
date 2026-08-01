@@ -17,35 +17,63 @@ jobs:
       - name: unit tests
         run: python3 -m pytest tests/ -v -rs
 
+      # 아래 스모크가 쓰는 코드·진술문·성취수준은 워크플로에 적어 두지 않고 지금의
+      # data/ 에서 뽑는다. 여기 박아 두면 데이터를 다시 빌드할 때 낡는데, 낡는 방향이
+      # 하필 '통과'다 — 사라진 코드는 여전히 FAKE 로 잡히고 옛 진술문은 여전히
+      # MISMATCH 라, 아무것도 지키지 않게 된 게이트가 계속 초록으로 남는다.
+      - name: derive smoke fixtures from data/
+        run: python3 .github/smoke_fixtures.py "$RUNNER_TEMP/fx"
+
       - name: smoke — lookup finds a known standard
         run: |
-          out=$(python3 scripts/lookup.py --school 중 --subject 수학 --keyword 소인수분해 --format md)
+          fx="$RUNNER_TEMP/fx"
+          out=$(python3 scripts/lookup.py --school "$(cat "$fx/school.txt")" \
+                  --keyword "$(cat "$fx/keyword.txt")" --format md)
           echo "$out"
-          echo "$out" | grep -qF '[9수01-01]'
-          echo "$out" | grep -qF '소인수분해의 뜻을 알고, 자연수를 소인수분해 할 수 있다.'
+          echo "$out" | grep -qF -- "[$(cat "$fx/code.txt")]"
+          echo "$out" | grep -qF -- "$(cat "$fx/statement.txt")"
 
       - name: smoke — lookup refuses to invent a missing code
         run: |
-          if python3 scripts/lookup.py --code 9수05-08 --format md; then
+          if python3 scripts/lookup.py --code "$(cat "$RUNNER_TEMP/fx/fake-code.txt")" --format md; then
             echo "FAIL: lookup returned a hit for a code that does not exist"; exit 1
           fi
 
+      # 종료 코드만 보면 엉뚱한 이유로 exit 1 이 나도 통과한다. 픽스처를 데이터에서
+      # 뽑기 시작한 뒤로는 그럴 여지가 늘어서, 노린 태그가 실제로 나왔는지까지 본다.
       - name: smoke — verify catches a fabricated code
         run: |
-          if echo '[9수05-08] 이차함수의 그래프의 성질을 이해할 수 있다.' | python3 scripts/verify.py -; then
+          fx="$RUNNER_TEMP/fx"
+          if python3 scripts/verify.py "$fx/fake.md" > "$fx/fake.out"; then
             echo "FAIL: verify passed a fabricated code"; exit 1
           fi
+          cat "$fx/fake.out"
+          grep -q '^FAKE' "$fx/fake.out"
 
       - name: smoke — verify catches an altered statement
         run: |
-          if echo '[9수01-01] 소인수분해의 뜻을 이해하고, 자연수를 소인수분해 할 수 있다.' | python3 scripts/verify.py -; then
+          fx="$RUNNER_TEMP/fx"
+          if python3 scripts/verify.py "$fx/mismatch.md" > "$fx/mismatch.out"; then
             echo "FAIL: verify passed an altered statement"; exit 1
           fi
+          cat "$fx/mismatch.out"
+          grep -q '^MISMATCH' "$fx/mismatch.out"
+
+      # 성취수준 서술문도 인용문이다. 진술문만 검사하고 A~E 를 놓치면, 교사가 실제로
+      # 평가계획에 옮겨 적는 문장이 검사 밖에 남는다.
+      - name: smoke — verify catches an altered level descriptor
+        run: |
+          fx="$RUNNER_TEMP/fx"
+          if python3 scripts/verify.py "$fx/lvldiff.md" > "$fx/lvldiff.out"; then
+            echo "FAIL: verify passed an altered 성취수준 descriptor"; exit 1
+          fi
+          cat "$fx/lvldiff.out"
+          grep -q '^LVLDIFF' "$fx/lvldiff.out"
 
       - name: smoke — verify passes a correct citation
         run: |
-          echo '[9수01-01] 소인수분해의 뜻을 알고, 자연수를 소인수분해 할 수 있다.' \
-            | python3 scripts/verify.py - --school 중
+          fx="$RUNNER_TEMP/fx"
+          python3 scripts/verify.py "$fx/ok.md" --school "$(cat "$fx/school.txt")"
 
       - name: browse/ is regenerated from data/
         run: |
