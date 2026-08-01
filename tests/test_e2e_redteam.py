@@ -119,15 +119,26 @@ INVENTED_LEVEL = "모든 상황에서 완벽하게 수행하고 다른 학생을
 
 
 def _tag_table(doc):
-    """`| 표시 |`로 시작하는 표의 첫 열 집합. 본문 어딘가에서 태그를 한 번 언급한 것과
-    표에 행으로 실린 것은 다르다 — 표를 찾아 읽지 않으면 행이 지워져도 검사가 통과한다."""
-    lines = doc.splitlines()
-    start = next(i for i, l in enumerate(lines) if l.startswith("| 표시 "))
-    out = set()
-    for line in lines[start + 2:]:          # 헤더와 구분선을 건너뛴다
-        if not line.startswith("|"):
-            break
-        out.add(line.split("`")[1])
+    """표 행의 첫 열에 백틱으로 실린 태그 집합.
+
+    본문 어딘가에서 태그를 한 번 언급한 것과 표에 행으로 실린 것은 다르다 —
+    표를 찾아 읽지 않으면 행이 지워져도 검사가 통과한다. 다만 표의 머리글
+    문구에는 묶지 않는다. 문서를 대상 독자에 맞게 여러 표로 나눠 싣는 것은
+    자유이고, 검사가 지켜야 할 것은 '태그가 표의 행으로 존재하는가'다.
+    """
+    out, block = set(), []
+    for line in doc.splitlines() + [""]:
+        if line.startswith("|"):
+            first = line.split("|")[1] if line.count("|") >= 2 else ""
+            block.append(first.split("`")[1] if first.count("`") >= 2 else None)
+            continue
+        # 표가 끝났다. 태그 표인지는 머리글이 아니라 내용으로 가린다 —
+        # 첫 열에 대문자 태그가 하나라도 있으면 태그 표로 보고 그 표를 통째로 읽는다.
+        # 이렇게 해야 없는 태그를 지어내 실은 행도 걸린다.
+        cells = [c for c in block if c]
+        if any(re.fullmatch(r"[A-Z]{3,}", c) for c in cells):
+            out |= set(cells)
+        block = []
     return out
 
 
