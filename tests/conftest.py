@@ -11,12 +11,14 @@ import pytest
 
 from pipeline.sources import SOURCE_DIR
 
+# 한 줄로 둔다 — pytest 요약(-rs)은 reason 을 첫 줄까지만 보여준다. 줄을 나누면
+# "고장이 아니다"라는 정작 중요한 말이 CI 로그에서 잘린다.
 _WHY = (
-    f"원본 코퍼스 없음: {SOURCE_DIR}\n"
+    f"원본 코퍼스 없음: {SOURCE_DIR} — "
     "이 저장소는 추출 결과물(data/)만 싣고 부처 고시 원문(약 93MB)은 싣지 않는다. "
-    "원문 없이 clone 하면 원문을 직접 읽는 테스트는 건너뛴다 — 정상이며 고장이 아니다. "
-    "원문을 가진 관리자는 pipeline/sources.py 의 SOURCE_DIR 이 실제 원문 폴더를 "
-    "가리키게 두면 그대로 실행된다."
+    "원문 없이 clone 하면 원문을 직접 읽는 테스트는 건너뛴다(정상이며 고장이 아니다). "
+    "원문을 가진 관리자 환경에서는 pipeline/sources.py 의 SOURCE_DIR 이 그 폴더를 "
+    "가리키므로 그대로 실행된다."
 )
 
 

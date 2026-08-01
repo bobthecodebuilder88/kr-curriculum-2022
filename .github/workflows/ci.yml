@@ -12,8 +12,10 @@ jobs:
           python-version: "3.11"
       - run: pip install pytest
 
+      # -rs: 건너뛴 테스트의 이유를 로그에 남긴다. 원본 코퍼스(부처 고시 원문 93MB)를
+      # 읽는 테스트들은 저장소에 원문이 없어 러너에서 skip 된다 — tests/conftest.py 참고.
       - name: unit tests
-        run: python3 -m pytest tests/ -v
+        run: python3 -m pytest tests/ -v -rs
 
       - name: smoke — lookup finds a known standard
         run: |
