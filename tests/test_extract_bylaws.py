@@ -1,7 +1,7 @@
 from pipeline.sources import BYLAWS, LEVEL_DOCS
 from pipeline.extract_bylaws import extract_from_text, drop_cross_references
 
-def test_all_manifest_files_exist():
+def test_all_manifest_files_exist(corpus):
     for e in BYLAWS:
         assert e["path"].exists(), e["path"]
     assert len(LEVEL_DOCS) >= 55  # 초3 + 중16 + 고41 - 별책류 제외분
@@ -473,7 +473,7 @@ def _shipped():
     kept, cross = drop_cross_references(recs)
     return kept, cross, src
 
-def test_every_statement_appears_verbatim_in_its_source():
+def test_every_statement_appears_verbatim_in_its_source(corpus):
     """공백·불릿 마크업 정규화 외에는 원문 그대로여야 한다. 섹션 헤더를 건너뛰어 이어붙이거나
     쪽 머리말을 삼키거나 다른 코드의 문장을 접합하면 정규화된 원문에서 그 문자열을 찾을 수
     없다 — 즉 이 한 줄이 '접합·지어냄 없음'을 코퍼스 전체에 대해 증명한다."""
@@ -482,7 +482,7 @@ def test_every_statement_appears_verbatim_in_its_source():
                  for r in kept if r["statement"] and _norm(r["statement"]) not in src[r["subject"]]]
     assert offenders == [], offenders[:5]
 
-def test_fixtures_are_verbatim_from_the_corpus():
+def test_fixtures_are_verbatim_from_the_corpus(corpus):
     """위 fixture들이 '원문 100% 그대로'라는 주장을 기계로 검증한다. 사람이 옮겨 적는 과정에서
     원문을 조용히 고치는 일이 두 번 있었다("간난한"→"간단한", "문회와"→"문화와") — 둘 다
     verbatim이 상품인 프로젝트에서 리뷰가 잡아냈다. 이제는 테스트가 잡는다."""
@@ -499,7 +499,7 @@ def test_fixtures_are_verbatim_from_the_corpus():
                 drift.append((name, line.strip()))
     assert drift == [], drift
 
-def test_no_structural_markup_survives_in_any_statement():
+def test_no_structural_markup_survives_in_any_statement(corpus):
     """불릿 글리프나 마커에서 떨어져 나온 선두 숫자는 부처 원문에 없다."""
     bullet = re.compile(r"(?:^|\s)[⋅•·∙©§*](?:\s|$)|(?:^|\s)-(?:\s|$)")
     lead_digit = re.compile(r"^\d(?:\s|$)")
@@ -513,7 +513,7 @@ def test_no_structural_markup_survives_in_any_statement():
 _CLEAN_SUBJECTS = ["국어", "사회", "수학", "과학", "실과·기술가정·정보", "체육",
                    "음악", "미술", "영어", "통합교과", "한문", "중학교 선택"]
 
-def test_coverage_no_nulls_in_clean_subjects_and_overall_under_10pct():
+def test_coverage_no_nulls_in_clean_subjects_and_overall_under_10pct(corpus):
     kept, _, _ = _shipped()
     holes = {}
     for s in _CLEAN_SUBJECTS:
@@ -524,7 +524,7 @@ def test_coverage_no_nulls_in_clean_subjects_and_overall_under_10pct():
     assert sum(1 for r in kept if r["statement"] is None) / len(kept) < 0.10
     assert len(kept) >= 3144, len(kept)
 
-def test_no_commentary_text_promoted_anywhere_in_corpus():
+def test_no_commentary_text_promoted_anywhere_in_corpus(corpus):
     """해설 문장이 진술문 자리에 올라오지 않았는지. 섹션 헤더 '자체'가 진술문에 섞였는지를 보되,
     '고려 사항'이라는 낱말만으로 걸지 않는다 — 별책18:1153 [9진로03-01]의 진짜 진술문이
     "진로의사결정의 방법과 고려 사항을 이해하고…"라서, 낱말 단위 검사는 정상 레코드를 잡는다."""
@@ -535,7 +535,7 @@ def test_no_commentary_text_promoted_anywhere_in_corpus():
         assert s is None or not s.startswith("이 성취기준"), (r["subject"], r["code"], s)
         assert s is None or not any(h in s for h in headers), (r["subject"], r["code"], s)
 
-def test_no_unexplained_drops():
+def test_no_unexplained_drops(corpus):
     """원문에서 인식된 코드는 그 문서의 과목으로 반드시 실려야 한다 — 유일한 예외는
     교차참조로 제외된 것뿐이고, 그건 제외 목록에 이유와 함께 남는다."""
     kept, cross, _ = _shipped()
