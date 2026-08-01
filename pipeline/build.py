@@ -55,6 +55,9 @@ def verify_descriptors_against_source(levels: list) -> list:
     실증: 페이지 경계에서 A등급 서술문의 꼬리가 C등급 머리로 넘어간 사례가
     20,606건 중 56건(0.272%) 있다(예: 9과17-04). 원문에 없는 서술문은
     등급을 잘못 붙였거나 잘린 것이므로 조용히 싣지 말고 드러낸다.
+
+    훑는 대상은 levels 원본 전체라 이 데이터셋이 싣지 않는 과목의 것도 함께
+    걸린다(56건 중 21건). 리포트는 둘을 갈라 적는다 — main() 참조.
     """
     from pipeline.clean import load_text
     from pipeline.sources import SOURCE_DIR
@@ -315,7 +318,15 @@ def main():
 
     # 원문에 없는 성취수준 서술문을 찾아 해당 레코드를 needs_review 로 표시한다.
     report["bad_descriptors"] = verify_descriptors_against_source(levels)
-    flagged = {(b["code"], b["level"]) for b in report["bad_descriptors"]}
+    # 이 검사는 levels 원본 전체를 훑으므로 이 데이터셋이 싣지 않는 과목(과학고·예고
+    # 계열, 고등학교 교양 등)의 서술문까지 걸린다. 둘을 한 숫자로 합치면 우리가 실제로
+    # 배포하는 데이터의 결함을 실제보다 크게 말하게 된다 — 실린 것과 아닌 것을 가른다.
+    shipped = {(r["code"], lv) for r in merged for lv in (r["levels"] or {})}
+    bad_shipped = [b for b in report["bad_descriptors"]
+                   if (b["code"], b["level"]) in shipped]
+    bad_elsewhere = [b for b in report["bad_descriptors"]
+                     if (b["code"], b["level"]) not in shipped]
+    flagged = {(b["code"], b["level"]) for b in bad_shipped}
     for r in merged:
         if any((r["code"], lv) in flagged for lv in (r["levels"] or {})):
             r["needs_review"] = True
@@ -408,8 +419,9 @@ def main():
         f"- 별책 진술문이 손상돼 성취수준표에서 문장을 가져온 건: {len(report['statement_filled_from_levels'])}",
         f"- OCR 잔재가 남은 진술문: {len(report['garbled'])}",
         f"- 약어 손상으로 생긴 유령 코드 의심: {len(report['abbr_outliers'])}",
-        f"- 출처 문서에서 그대로 찾을 수 없는 성취수준 서술문: {len(report['bad_descriptors'])}"
-        f" / 전체 {sum(len(l['levels']) for l in levels)}",
+        f"- 출처 문서에서 그대로 찾을 수 없는 성취수준 서술문: {len(bad_shipped)}"
+        f" / 이 데이터셋이 싣는 서술문 {len(shipped)}"
+        f" (같은 검사에 걸렸으나 여기 싣지 않는 과목의 것 {len(bad_elsewhere)}건은 뺐다)",
         f"- 번호가 끊긴 자리: {len(report['sequence_gaps'])}",
         ""]
     by_subj = defaultdict(lambda: [0, 0])
@@ -437,13 +449,24 @@ def main():
                       f"    - 별책: {c['bylaw']}",
                       f"    - 성취수준표: {c['table']}"]
         lines += [""]
-    if report["bad_descriptors"]:
+    if bad_shipped:
         lines += ["## 원문 대조 실패 성취수준 서술문",
-                  "아래 서술문은 출처 문서에서 그대로 찾을 수 없다. 페이지 경계에서",
+                  f"아래 {len(bad_shipped)}건은 출처 문서에서 그대로 찾을 수 없다. 페이지 경계에서",
                   "한 등급의 문장 끝이 다음 등급 머리로 넘어간 사례가 대부분이다.",
-                  "등급 배정이 틀렸을 수 있으니 원문 고시본을 확인하라.", ""]
+                  "등급 배정이 틀렸을 수 있으니 원문 고시본을 확인하라.",
+                  f"이 데이터셋이 싣는 성취기준 {len({b['code'] for b in bad_shipped})}개에 걸리며,",
+                  "그 레코드는 `needs_review: true`다.", ""]
         lines += [f"- [{b['code']}] {b['level']}등급 ({b['doc']}) {b['text'][:60]}…"
-                  for b in report["bad_descriptors"]]
+                  for b in bad_shipped]
+        lines += [""]
+    if bad_elsewhere:
+        lines += ["### 이 데이터셋이 싣지 않는 과목의 것",
+                  f"같은 검사에 {len(bad_elsewhere)}건이 더 걸렸다. 다만 성취수준 문서에만 있고",
+                  "별책 고시본이 없어 싣지 못한 과목의 서술문이라 `data/`에 존재하지 않는다.",
+                  "위 숫자에 넣으면 이 데이터셋의 결함을 실제보다 크게 말하는 것이 되므로",
+                  "따로 적는다. 아래 코드로 조회하면 결과가 나오지 않는다.", ""]
+        lines += [f"- [{b['code']}] {b['level']}등급 ({b['doc']}) {b['text'][:60]}…"
+                  for b in bad_elsewhere]
         lines += [""]
     if report["garbled"]:
         lines += ["## OCR 잔재가 섞인 진술문",
